@@ -1,0 +1,3230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <!-- iOS Native Web App Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Seoul Calm" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Seoul Calm — Overtourism Relief App Prototype</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Multi-script Typography: Inter, Noto Sans KR, Noto Sans JP, Noto Sans SC, Noto Sans Arabic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;800&family=Noto+Sans+KR:wght@400;500;700;800&family=Noto+Sans+SC:wght@400;500;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --font-sans: 'Inter', 'Noto Sans KR', 'Noto Sans JP', 'Noto Sans SC', 'Noto Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: #0b1120;
+      background-image:
+        radial-gradient(circle at 18% 18%, rgba(56, 189, 248, 0.13) 0%, transparent 42%),
+        radial-gradient(circle at 82% 80%, rgba(16, 185, 129, 0.11) 0%, transparent 45%),
+        linear-gradient(180deg, #090d16 0%, #0f172a 55%, #111827 100%);
+      color: #f8fafc;
+      margin: 0;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    /* Desktop >= 900px: Realistic iPhone 16 Pro Hardware Frame */
+    @media (min-width: 900px) {
+      body {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 2.25rem;
+        padding: 1.5rem;
+      }
+
+      .iphone-chassis {
+        width: 393px;
+        height: 852px;
+        max-height: 93vh;
+        border-radius: 54px;
+        background: linear-gradient(145deg, #2e2e32 0%, #18181b 50%, #09090b 100%);
+        padding: 12px;
+        box-shadow:
+          0 35px 90px -15px rgba(0, 0, 0, 0.88),
+          0 0 0 1px rgba(255, 255, 255, 0.15),
+          inset 0 0 2px 1px rgba(255, 255, 255, 0.22);
+        position: relative;
+        flex-shrink: 0;
+      }
+
+      .iphone-chassis::before {
+        content: "";
+        position: absolute;
+        left: -3px;
+        top: 138px;
+        width: 3px;
+        height: 32px;
+        background: #3f3f46;
+        border-radius: 3px 0 0 3px;
+        box-shadow: 0 52px 0 #3f3f46, 0 96px 0 #3f3f46;
+      }
+
+      .iphone-chassis::after {
+        content: "";
+        position: absolute;
+        right: -3px;
+        top: 188px;
+        width: 3px;
+        height: 76px;
+        background: #3f3f46;
+        border-radius: 0 3px 3px 0;
+      }
+
+      .iphone-screen {
+        width: 100%;
+        height: 100%;
+        border-radius: 43px;
+        overflow: hidden;
+      }
+
+      .ios-status-bar {
+        display: flex;
+      }
+
+      .mobile-demo-fab {
+        display: none;
+      }
+    }
+
+    /* Mobile / iOS < 900px: Native Edge-to-Edge Full-Screen Experience */
+    @media (max-width: 899px) {
+      body {
+        background: #f8fafc;
+        padding: 0;
+      }
+
+      .iphone-chassis {
+        width: 100vw;
+        height: 100dvh;
+        padding: 0;
+        border-radius: 0;
+        background: #f8fafc;
+      }
+
+      .iphone-screen {
+        width: 100%;
+        height: 100dvh;
+        border-radius: 0;
+        padding-top: env(safe-area-inset-top, 0px);
+      }
+
+      .ios-status-bar {
+        display: none;
+      }
+
+      .app-bottom-nav {
+        padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px)) !important;
+      }
+
+      /* Desktop sidebar hidden by default on mobile; shown as slide-up sheet when toggled */
+      .presenter-sidebar {
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        background: rgba(2, 6, 23, 0.72);
+        backdrop-filter: blur(6px);
+        display: none;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 0.75rem;
+      }
+
+      .presenter-sidebar.mobile-open {
+        display: flex;
+      }
+
+      .presenter-card {
+        max-height: 84dvh;
+        overflow-y: auto;
+        width: 100%;
+      }
+    }
+
+    .iphone-screen {
+      background: #f8fafc;
+      color: #0f172a;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .phone-scroll::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    .phone-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .phone-scroll::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.45);
+      border-radius: 9999px;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.84); opacity: 0; }
+      70% { transform: scale(1.03); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .animate-view {
+      animation: fadeSlideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .animate-pop {
+      animation: popIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =====================================================================
+       LEFT / CENTER: IPHONE 16 PRO SHELL (EDGE-TO-EDGE ON IOS DEVICES)
+       ===================================================================== -->
+  <main class="iphone-chassis" aria-label="Seoul Calm Mobile Prototype">
+    <div id="iphone-screen" class="iphone-screen" dir="ltr">
+
+      <!-- Top Header (iOS Status Bar + Monolingual App Bar + 10-Language Selector) -->
+      <header class="bg-white/95 backdrop-blur-md z-30 shrink-0 select-none border-b border-slate-100 relative">
+        <!-- Desktop Hardware Status Bar -->
+        <div class="ios-status-bar items-center justify-between px-6 pt-3 pb-1.5 text-[12px] font-semibold text-slate-900" dir="ltr">
+          <span>9:41</span>
+          <div class="w-28 h-7 bg-black rounded-full flex items-center justify-between px-3 shadow-inner">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-[10px] font-semibold text-slate-300 tracking-tight">LIVE</span>
+            <span class="w-2.5 h-2.5 rounded-full bg-slate-800 border border-slate-700"></span>
+          </div>
+          <div class="flex items-center gap-1.5 text-slate-900">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M2 20h2v-4H2v4zm4 0h2v-7H6v7zm4 0h2V10h-2v10zm4 0h2V6h-2v14zm4 0h2V2h-2v18z"/></svg>
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 18c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm-4.9-2.3l1.4 1.4C9.4 16.4 10.6 16 12 16s2.6.4 3.5 1.1l1.4-1.4C15.6 14.6 13.9 14 12 14s-3.6.6-4.9 1.7zm-2.8-2.8l1.4 1.4C7.3 13 9.5 12 12 12s4.7 1 6.3 2.3l1.4-1.4C17.7 11.1 15 10 12 10s-5.7 1.1-7.7 2.9z"/></svg>
+            <div class="w-5 h-2.5 border border-slate-900 rounded-[3px] p-[1px] flex items-center">
+              <div class="w-full h-full bg-slate-900 rounded-[1px]"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- App Navigation Header -->
+        <div class="flex items-center justify-between px-4 py-2.5 gap-2">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-sm shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-6-4.35-6-10a6 6 0 1112 0c0 5.65-6 10-6 10z"/>
+                <circle cx="12" cy="11" r="2.2" fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="min-w-0">
+              <h1 id="app-title" class="text-[14px] font-extrabold tracking-tight text-slate-900 leading-none truncate">Seoul Calm</h1>
+              <p id="app-subtitle" class="text-[10px] font-medium text-slate-500 mt-0.5 truncate">Smart Crowd-Free Travel</p>
+            </div>
+          </div>
+
+          <!-- Sleek 10-Language Selector Dropdown Button -->
+          <div class="relative shrink-0">
+            <button
+              id="lang-menu-btn"
+              onclick="toggleLangMenu()"
+              class="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 active:scale-95 transition rounded-full px-3 py-1.5 border border-slate-200 text-xs font-extrabold text-slate-800 cursor-pointer"
+              aria-label="Select Language"
+            >
+              <span id="current-lang-flag">🇬🇧</span>
+              <span id="current-lang-native">English</span>
+              <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+
+            <!-- Dropdown Popover with All 10 Languages -->
+            <div
+              id="lang-dropdown"
+              class="hidden absolute end-0 mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-slate-200/90 py-1.5 z-50 max-h-80 overflow-y-auto phone-scroll"
+            >
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Scrollable App Viewport -->
+      <div id="phone-viewport" class="flex-1 overflow-y-auto phone-scroll bg-slate-50/95 relative">
+        <!-- Rendered dynamically in the single active language -->
+      </div>
+
+      <!-- Compact Floating Demo Pill (Visible only on mobile/iOS < 900px) -->
+      <button
+        onclick="openMobilePresenter()"
+        class="mobile-demo-fab fixed bottom-24 end-4 z-40 px-3.5 py-2 rounded-full bg-slate-900/90 backdrop-blur-md text-white border border-slate-700 shadow-xl text-xs font-extrabold flex items-center gap-1.5 cursor-pointer"
+      >
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>Demo</span>
+      </button>
+
+      <!-- In-App Toast Banner -->
+      <div id="in-app-toast" class="pointer-events-none absolute top-24 left-4 right-4 z-40 transition-all duration-300 opacity-0 -translate-y-3">
+        <div id="in-app-toast-inner" class="rounded-2xl px-4 py-3 shadow-xl border backdrop-blur-md text-xs font-semibold flex items-center gap-2.5"></div>
+      </div>
+
+      <!-- In-App Modal (Collection Celebration & Anti-Cheat Demo) -->
+      <div id="in-app-modal" class="hidden absolute inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-5">
+        <div id="in-app-modal-card" class="w-full bg-white rounded-3xl p-6 shadow-2xl border border-slate-100 animate-pop text-center relative overflow-hidden">
+        </div>
+      </div>
+
+      <!-- Bottom 3-Tab Navigation Bar -->
+      <nav class="app-bottom-nav bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-4 pt-2 pb-5 shrink-0 z-30">
+        <div class="grid grid-cols-3 gap-1">
+          <button
+            onclick="switchTab('explore')"
+            id="nav-explore"
+            class="flex flex-col items-center justify-center py-1.5 rounded-2xl transition cursor-pointer"
+          >
+            <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/>
+            </svg>
+            <span id="nav-explore-label" class="text-[11px] font-bold truncate max-w-full px-1">Explore</span>
+          </button>
+
+          <button
+            onclick="switchTab('quiz')"
+            id="nav-quiz"
+            class="flex flex-col items-center justify-center py-1.5 rounded-2xl transition cursor-pointer"
+          >
+            <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+            </svg>
+            <span id="nav-quiz-label" class="text-[11px] font-bold truncate max-w-full px-1">Vibe Quiz</span>
+          </button>
+
+          <button
+            onclick="switchTab('badges')"
+            id="nav-badges"
+            class="flex flex-col items-center justify-center py-1.5 rounded-2xl transition relative cursor-pointer"
+          >
+            <div class="relative">
+              <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+              </svg>
+              <span id="nav-badge-count" class="absolute -top-1.5 -end-3 bg-emerald-500 text-white text-[9px] font-extrabold px-1.5 py-0.2 rounded-full shadow-xs">0</span>
+            </div>
+            <span id="nav-badges-label" class="text-[11px] font-bold truncate max-w-full px-1">Passport</span>
+          </button>
+        </div>
+      </nav>
+    </div>
+  </main>
+
+  <!-- =====================================================================
+       RIGHT SIDEBAR / MOBILE SHEET: KEYNOTE PRESENTER DEMO CONTROLS
+       ===================================================================== -->
+  <aside id="presenter-sidebar" class="presenter-sidebar" onclick="if(event.target===this) closeMobilePresenter()">
+    <div class="presenter-card w-full max-w-[430px] bg-slate-900/95 backdrop-blur-xl border border-slate-700/80 rounded-3xl p-5 shadow-2xl text-slate-100">
+      <div class="flex items-center justify-between gap-2 pb-3.5 border-b border-slate-800">
+        <div>
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-[10px] font-extrabold uppercase tracking-wider mb-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+            Keynote Stage Panel
+          </div>
+          <h2 class="text-base font-extrabold tracking-tight text-white">Presenter Demo Controls</h2>
+          <p class="text-[11px] text-slate-400">10-Language Strictly Monolingual Mode · F1–F6</p>
+        </div>
+        <button
+          onclick="closeMobilePresenter()"
+          class="lg:hidden px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 cursor-pointer"
+        >
+          ✕
+        </button>
+      </div>
+
+      <!-- 10-Language Quick Switcher Grid -->
+      <div class="mt-3.5">
+        <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-2">
+          Instant Language Switch (100% Monolingual UI)
+        </div>
+        <div id="presenter-lang-grid" class="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-2 gap-1.5">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Golden Path Demo Scenes -->
+      <div class="mt-4 space-y-2.5">
+        <button
+          onclick="runDemoScene1(); closeMobilePresenter();"
+          class="w-full text-left group p-3 rounded-2xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-sky-400/50 transition cursor-pointer"
+        >
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-extrabold text-sky-400 uppercase tracking-wider">Scene 1 · F1 Vibe Quiz</span>
+            <span class="text-xs text-slate-400 group-hover:translate-x-0.5 transition">Jump →</span>
+          </div>
+          <div class="text-xs font-bold text-white mt-0.5">8-Question Personality Test &amp; Top 5 Matches</div>
+        </button>
+
+        <button
+          onclick="runDemoScene2(); closeMobilePresenter();"
+          class="w-full text-left group p-3 rounded-2xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-rose-400/50 transition cursor-pointer"
+        >
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-extrabold text-rose-400 uppercase tracking-wider">Scene 2 · F2 + F3 + F4 Escape</span>
+            <span class="text-xs text-slate-400 group-hover:translate-x-0.5 transition">Jump →</span>
+          </div>
+          <div class="text-xs font-bold text-white mt-0.5">Crowded Gyeongbokgung → 3 Quiet Alternatives</div>
+        </button>
+
+        <button
+          onclick="runDemoScene3(); closeMobilePresenter();"
+          class="w-full text-left group p-3 rounded-2xl bg-gradient-to-br from-emerald-950/90 to-slate-800/90 hover:from-emerald-900/70 hover:to-slate-800 border border-emerald-500/40 hover:border-emerald-400 transition cursor-pointer"
+        >
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-extrabold text-emerald-400 uppercase tracking-wider">Scene 3 · F5 + F6 Grand Finale</span>
+            <span class="text-xs text-emerald-300 group-hover:translate-x-0.5 transition">Stage →</span>
+          </div>
+          <div class="text-xs font-bold text-white mt-0.5">5/6 Badges → Unlock Hidden Alley Explorer</div>
+        </button>
+
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button
+            onclick="simulateAntiCheatReject(); closeMobilePresenter();"
+            class="p-2.5 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-400/30 text-left transition cursor-pointer"
+          >
+            <div class="text-[10px] font-extrabold text-amber-300 uppercase">Anti-Cheat Q&amp;A</div>
+            <div class="text-[11px] font-semibold text-slate-200 mt-0.5">Reject Web Photo</div>
+          </button>
+
+          <button
+            onclick="resetAllDemoData(); closeMobilePresenter();"
+            class="p-2.5 rounded-2xl bg-slate-800/70 hover:bg-rose-950/50 border border-slate-700 hover:border-rose-500/40 text-left transition cursor-pointer"
+          >
+            <div class="text-[10px] font-extrabold text-slate-400 uppercase">Clean Slate</div>
+            <div class="text-[11px] font-semibold text-slate-200 mt-0.5">Reset Demo</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- =====================================================================
+       COMPLETE 10-LANGUAGE LOCALIZATION & CORE APP LOGIC
+       ===================================================================== -->
+  <script>
+    const SPOT100_URL = "https://spot100x100.kr/?utm_source=youtube&utm_campaign=chimchakman";
+
+    const LANGUAGES = [
+      { code: "en", native: "English", flag: "🇬🇧", dir: "ltr" },
+      { code: "ko", native: "한국어", flag: "🇰🇷", dir: "ltr" },
+      { code: "fr", native: "Français", flag: "🇫🇷", dir: "ltr" },
+      { code: "de", native: "Deutsch", flag: "🇩🇪", dir: "ltr" },
+      { code: "es", native: "Español", flag: "🇪🇸", dir: "ltr" },
+      { code: "ja", native: "日本語", flag: "🇯🇵", dir: "ltr" },
+      { code: "zh", native: "简体中文", flag: "🇨🇳", dir: "ltr" },
+      { code: "ar", native: "العربية", flag: "🇸🇦", dir: "rtl" },
+      { code: "tl", native: "Filipino", flag: "🇵🇭", dir: "ltr" },
+      { code: "it", native: "Italiano", flag: "🇮🇹", dir: "ltr" }
+    ];
+
+    // -----------------------------------------------------------------------
+    // 1. COMPLETE 10-LANGUAGE UI & DOMAIN DICTIONARIES (STRICT MONOLINGUAL)
+    // -----------------------------------------------------------------------
+    const I18N = {
+      en: {
+        appTitle: "Seoul Calm",
+        appSubtitle: "Smart Crowd-Free Travel",
+        navExplore: "Explore",
+        navQuiz: "Vibe Quiz",
+        navBadges: "Passport",
+        heroBadge: "Seoul Real-Time City Data",
+        heroTitle: "Skip the crowds. Discover Seoul's quiet alleys.",
+        quietSpots: "Quiet Spots",
+        crowdedSpots: "Crowded Areas",
+        placesUnit: "places",
+        filterAll: "All (15)",
+        filterHidden: "Hidden Gems (6)",
+        hiddenBadge: "Hidden Gem",
+        topRankPrefix: "Top #",
+        verifiedTag: "Verified",
+        detailsBtn: "Details",
+        backBtn: "Back to Spots",
+        popularRankPrefix: "Popular Rank #",
+        hiddenRankPrefix: "Hidden Gem Rank #",
+        f2Title: "Area Congestion & Transit",
+        f2Note: "Area-level crowding around this spot (Seoul Real-Time City Data), not live station headcount.",
+        nearestSubway: "Nearest Subway",
+        nearestBus: "Nearest Bus Stop",
+        noneWithin15km: "None within 1.5 km",
+        f3Title: "Visitor Forecast (35-Day Trend)",
+        f3Confidence: "Confidence: Moderate",
+        todayForecast: "Today Forecast",
+        tomorrowForecast: "Tomorrow Forecast",
+        baselineLabel: "Days 1–28 Baseline",
+        recentLabel: "Recent 7 Days",
+        f3Note: "Prediction based on search volume trends. Actual conditions may vary.",
+        vs28d: "vs 28d avg",
+        f4Badge: "Escape the Crowd",
+        f4Title: "Too Crowded? Try These 3 Quiet Alternatives",
+        f4Subtitle: "Same theme, lower popularity rank, and low current congestion",
+        viewSpotDetails: "View Spot Details",
+        spot100Btn: "Top 100 Info",
+        f5Title: "On-Site Photo Verification",
+        f5BadgeEarned: "Badge Earned",
+        f5GpsCheck: "GPS ≤ 150m + Web Check",
+        f5HeadingEarned: "You've Collected This Spot's Stamp!",
+        f5HeadingDefault: "Verify Your Visit & Earn Stamp Badge",
+        f5Desc: "Verifies GPS radius (≤150m), pHash fingerprint uniqueness, and Web Detection (no online match).",
+        step1Gps: "1. GPS Geofence (≤ 150m)",
+        step2Phash: "2. pHash Fingerprint Unique",
+        step3Vision: "3. Web Detection: No Match Online",
+        btnReverify: "Re-Verify On-Site Photo",
+        btnSimulateCamera: "Simulate On-Site Camera Capture",
+        btnUploadFile: "Or Upload Photo from Device",
+        f6Badge: "Special Collection",
+        f6RewardPrefix: "Reward:",
+        f6Complete: "Collection Complete!",
+        f6Progress: "Progress",
+        passportTitle: "Seoul Stamp Passport",
+        tapToVerify: "Tap a spot to verify",
+        unlocked: "Unlocked",
+        locked: "Locked",
+        quizBadge: "Travel Personality",
+        quizAutoFill: "Quick Demo Fill",
+        quizTitle: "Find Quiet Seoul Spots Matched to Your Vibe",
+        retakeBtn: "Retake",
+        typePrefix: "TYPE",
+        axisQuiet: "Quiet",
+        axisLively: "Lively",
+        axisNature: "Nature",
+        axisCity: "City",
+        axisHeritage: "Heritage",
+        axisTrendy: "Trendy",
+        top5Title: "Top 5 Vibe-Matched & Low-Crowd Spots",
+        vibeMatchPct: "vibe match",
+        submitQuizBtn: "See My Travel Type & Top 5 Matches",
+        answerAllPrompt: "Answer All 8 Questions",
+        modalCollectionBadge: "Special Collection Unlocked!",
+        modalCollectionDesc: "You verified all 6 Hidden Alley spots! Your special explorer trophy has been automatically awarded.",
+        closeBtn: "Close",
+        viewTrophyBtn: "View Trophy",
+        modalAntiCheatBadge: "Anti-Cheat Protection",
+        modalAntiCheatTitle: "Verification Rejected: Image Found Online",
+        antiCheatStep1: "1. GPS Geofence (≤ 150m)",
+        antiCheatStep2: "2. Local pHash Distance (> 8)",
+        antiCheatStep3: "3. Web Image Detection",
+        antiCheatPass: "PASS",
+        antiCheatFail: "MATCH FOUND",
+        antiCheatDesc: "Downloaded web or blog photos are automatically blocked so badges remain authentic.",
+        understoodBtn: "Understood",
+        toastQuizIncomplete: "Please answer all 8 questions first.",
+        toastAutoFilled: "Auto-filled & matched your travel personality!",
+        toastBadgeEarned: "Badge Unlocked! Hidden Alleys:",
+        toastReverified: "On-site photo re-verified!",
+        toastScene1: "Scene 1: Travel Personality Quiz Ready",
+        toastScene2: "Scene 2: Crowded Hotspot → 3 Quiet Alternatives",
+        toastScene3: "Scene 3: 5/6 Badges Ready! Tap Camera Capture below.",
+        toastReset: "All demo data reset to clean slate.",
+        crowd: { quiet: "Quiet", normal: "Normal", crowded: "Crowded", unknown: "Unknown" },
+        categories: { "역사문화": "History & Culture", "시장거리": "Markets & Streets", "자연공원": "Nature & Parks", "예술트렌드": "Art & Trends" },
+        lines: { "3호선": "Line 3", "4호선": "Line 4", "2호선": "Line 2", "수인분당선": "Suin-Bundang Line", "1호선": "Line 1", "6호선": "Line 6", "간선/지선": "City Bus" },
+        collection: { name: "Hidden Alleys Collection", rewardTitle: "Hidden Alley Explorer" }
+      },
+      ko: {
+        appTitle: "서울 쉼표",
+        appSubtitle: "오버투어리즘 해소 가이드",
+        navExplore: "둘러보기",
+        navQuiz: "성향 검사",
+        navBadges: "여권·배지",
+        heroBadge: "서울시 실시간 도시데이터",
+        heroTitle: "붐비는 명소를 피해, 서울의 숨은 골목으로.",
+        quietSpots: "여유 명소",
+        crowdedSpots: "붐빔 지역",
+        placesUnit: "곳",
+        filterAll: "전체 (15)",
+        filterHidden: "비주류 명소 (6)",
+        hiddenBadge: "비주류 추천",
+        topRankPrefix: "인기 #",
+        verifiedTag: "인증됨",
+        detailsBtn: "상세보기",
+        backBtn: "목록으로",
+        popularRankPrefix: "인기 순위 #",
+        hiddenRankPrefix: "비주류 순위 #",
+        f2Title: "주변 혼잡도 및 교통 정보",
+        f2Note: "서울시 실시간 도시데이터 기준 주변 지역 혼잡 단계이며, 특정 역의 실시간 인원수가 아닙니다.",
+        nearestSubway: "가까운 지하철역",
+        nearestBus: "가까운 버스 정류장",
+        noneWithin15km: "1.5km 이내 정류장 없음",
+        f3Title: "방문자 예측 (35일 검색 추이)",
+        f3Confidence: "신뢰도: 보통",
+        todayForecast: "오늘 예측",
+        tomorrowForecast: "내일 예측",
+        baselineLabel: "이전 28일 기준선",
+        recentLabel: "최근 7일 추이",
+        f3Note: "검색량 추이를 바탕으로 한 예측이며 실제 현장 상황과 다를 수 있습니다.",
+        vs28d: "28일 평균 대비",
+        f4Badge: "혼잡 회피 추천",
+        f4Title: "지금 붐비나요? 한적한 대체 관광지 3곳",
+        f4Subtitle: "같은 테마의 덜 알려지고 여유로운 서울 명소",
+        viewSpotDetails: "상세 보기",
+        spot100Btn: "인기 100선 정보",
+        f5Title: "현장 사진 인증 배지",
+        f5BadgeEarned: "배지 획득 완료",
+        f5GpsCheck: "반경 150m + 웹 중복 검사",
+        f5HeadingEarned: "이 장소의 인증 스탬프를 획득했습니다!",
+        f5HeadingDefault: "현장 사진을 인증하고 배지를 받으세요",
+        f5Desc: "GPS 반경(150m 이내), 이미지 지문(pHash) 고유성, 인터넷 미등재 여부를 검증합니다.",
+        step1Gps: "1. GPS 위치 반경 확인 (≤ 150m)",
+        step2Phash: "2. 이미지 지문(pHash) 고유성 확인",
+        step3Vision: "3. 웹 이미지 대조: 인터넷 미발견",
+        btnReverify: "현장 사진 다시 인증하기",
+        btnSimulateCamera: "현장 카메라 촬영 시뮬레이션",
+        btnUploadFile: "또는 기기에서 사진 선택",
+        f6Badge: "특별 컬렉션",
+        f6RewardPrefix: "완주 보상:",
+        f6Complete: "컬렉션 달성 완료!",
+        f6Progress: "달성 현황",
+        passportTitle: "서울 인증 스탬프 여권",
+        tapToVerify: "장소를 눌러 현장 인증",
+        unlocked: "획득 완료",
+        locked: "미인증",
+        quizBadge: "관광 성향 검사",
+        quizAutoFill: "빠른 데모 완성",
+        quizTitle: "내 여행 성향에 맞는 한적한 서울 명소 찾기",
+        retakeBtn: "다시하기",
+        typePrefix: "유형",
+        axisQuiet: "조용함",
+        axisLively: "활기참",
+        axisNature: "자연",
+        axisCity: "도시",
+        axisHeritage: "전통",
+        axisTrendy: "트렌디",
+        top5Title: "성향 일치 + 덜 붐비는 추천 명소 5곳",
+        vibeMatchPct: "성향 일치",
+        submitQuizBtn: "내 성향 유형 및 추천 명소 5곳 보기",
+        answerAllPrompt: "8문항을 모두 선택해 주세요",
+        modalCollectionBadge: "비주류 컬렉션 달성!",
+        modalCollectionDesc: "숨은 골목 6곳을 모두 현장 인증했습니다! 특별 탐험가 트로피 배지가 자동 지급되었습니다.",
+        closeBtn: "닫기",
+        viewTrophyBtn: "컬렉션 보기",
+        modalAntiCheatBadge: "부정 인증 방지 시스템",
+        modalAntiCheatTitle: "인증 거절: 인터넷에서 동일 사진 발견",
+        antiCheatStep1: "1. GPS 위치 반경 (≤ 150m)",
+        antiCheatStep2: "2. 로컬 이미지 지문 거리 (> 8)",
+        antiCheatStep3: "3. 웹 이미지 대조 검사",
+        antiCheatPass: "통과",
+        antiCheatFail: "웹 일치 발견",
+        antiCheatDesc: "블로그나 웹에서 내려받은 사진은 자동 차단되어 현장 인증 배지의 가치를 지킵니다.",
+        understoodBtn: "확인",
+        toastQuizIncomplete: "8개 문항을 모두 선택해 주세요.",
+        toastAutoFilled: "성향 검사 자동 완성 및 맞춤 명소 매칭 완료!",
+        toastBadgeEarned: "배지 획득 완료! 숨은 골목 달성:",
+        toastReverified: "현장 사진 재인증이 완료되었습니다!",
+        toastScene1: "장면 1: 관광 성향 검사 준비 완료",
+        toastScene2: "장면 2: 경복궁 붐빔 → 조용한 대체지 3곳 추천",
+        toastScene3: "장면 3: 5/6 달성! 아래 카메라 촬영 버튼을 누르세요.",
+        toastReset: "모든 데모 데이터가 초기화되었습니다.",
+        crowd: { quiet: "여유", normal: "보통", crowded: "붐빔", unknown: "알 수 없음" },
+        categories: { "역사문화": "역사문화", "시장거리": "시장거리", "자연공원": "자연공원", "예술트렌드": "예술트렌드" },
+        lines: { "3호선": "3호선", "4호선": "4호선", "2호선": "2호선", "수인분당선": "수인분당선", "1호선": "1호선", "6호선": "6호선", "간선/지선": "시내버스" },
+        collection: { name: "숨은 골목 컬렉션", rewardTitle: "숨은 골목 탐험가" }
+      },
+      fr: {
+        appTitle: "Séoul Calme",
+        appSubtitle: "Voyage serein sans foule",
+        navExplore: "Explorer",
+        navQuiz: "Profil",
+        navBadges: "Passeport",
+        heroBadge: "Données en temps réel de Séoul",
+        heroTitle: "Évitez la foule. Découvrez les ruelles paisibles de Séoul.",
+        quietSpots: "Lieux calmes",
+        crowdedSpots: "Zones bondées",
+        placesUnit: "lieux",
+        filterAll: "Tous (15)",
+        filterHidden: "Trésors cachés (6)",
+        hiddenBadge: "Trésor caché",
+        topRankPrefix: "Top #",
+        verifiedTag: "Vérifié",
+        detailsBtn: "Détails",
+        backBtn: "Retour aux lieux",
+        popularRankPrefix: "Classement #",
+        hiddenRankPrefix: "Lieu secret #",
+        f2Title: "Affluence du quartier et transports",
+        f2Note: "Affluence globale du quartier autour du site, et non le nombre de personnes en station.",
+        nearestSubway: "Métro le plus proche",
+        nearestBus: "Arrêt de bus proche",
+        noneWithin15km: "Aucun dans 1,5 km",
+        f3Title: "Prévision d'affluence (35 jours)",
+        f3Confidence: "Fiabilité : Modérée",
+        todayForecast: "Aujourd'hui",
+        tomorrowForecast: "Demain",
+        baselineLabel: "Base jours 1–28",
+        recentLabel: "7 derniers jours",
+        f3Note: "Prévision basée sur les recherches. La réalité peut différer.",
+        vs28d: "vs moy. 28j",
+        f4Badge: "Éviter la foule",
+        f4Title: "Trop de monde ? Essayez ces 3 alternatives calmes",
+        f4Subtitle: "Même thème, moins connu et faible affluence actuelle",
+        viewSpotDetails: "Voir le lieu",
+        spot100Btn: "Guide Top 100",
+        f5Title: "Badge photo sur place",
+        f5BadgeEarned: "Badge obtenu",
+        f5GpsCheck: "GPS ≤ 150m + Vérif. Web",
+        f5HeadingEarned: "Vous avez obtenu le tampon de ce lieu !",
+        f5HeadingDefault: "Vérifiez votre visite et gagnez un badge",
+        f5Desc: "Vérifie le rayon GPS (≤150m), l'empreinte pHash et l'absence sur le Web.",
+        step1Gps: "1. Rayon GPS (≤ 150m)",
+        step2Phash: "2. Empreinte pHash unique",
+        step3Vision: "3. Détection Web : Introuvable en ligne",
+        btnReverify: "Vérifier à nouveau",
+        btnSimulateCamera: "Simuler une photo sur place",
+        btnUploadFile: "Ou importer une photo",
+        f6Badge: "Collection spéciale",
+        f6RewardPrefix: "Récompense :",
+        f6Complete: "Collection terminée !",
+        f6Progress: "Progression",
+        passportTitle: "Passeport de tampons Séoul",
+        tapToVerify: "Touchez un lieu pour vérifier",
+        unlocked: "Débloqué",
+        locked: "Verrouillé",
+        quizBadge: "Test de personnalité",
+        quizAutoFill: "Remplissage démo",
+        quizTitle: "Trouvez des lieux calmes adaptés à votre style",
+        retakeBtn: "Refaire",
+        typePrefix: "PROFIL",
+        axisQuiet: "Calme",
+        axisLively: "Animé",
+        axisNature: "Nature",
+        axisCity: "Ville",
+        axisHeritage: "Tradition",
+        axisTrendy: "Tendance",
+        top5Title: "Top 5 des lieux calmes selon votre profil",
+        vibeMatchPct: "affinité",
+        submitQuizBtn: "Voir mon profil et mes 5 recommandations",
+        answerAllPrompt: "Répondez aux 8 questions",
+        modalCollectionBadge: "Collection spéciale débloquée !",
+        modalCollectionDesc: "Vous avez vérifié les 6 ruelles cachées ! Votre trophée spécial d'explorateur a été attribué.",
+        closeBtn: "Fermer",
+        viewTrophyBtn: "Voir le trophée",
+        modalAntiCheatBadge: "Protection anti-triche",
+        modalAntiCheatTitle: "Refusé : image trouvée sur Internet",
+        antiCheatStep1: "1. Rayon GPS (≤ 150m)",
+        antiCheatStep2: "2. Distance pHash locale (> 8)",
+        antiCheatStep3: "3. Détection d'image Web",
+        antiCheatPass: "VALIDE",
+        antiCheatFail: "TROUVÉE EN LIGNE",
+        antiCheatDesc: "Les photos téléchargées sur le Web sont bloquées pour garantir l'authenticité.",
+        understoodBtn: "Compris",
+        toastQuizIncomplete: "Veuillez répondre aux 8 questions.",
+        toastAutoFilled: "Profil complété et lieux assortis !",
+        toastBadgeEarned: "Badge débloqué ! Ruelles cachées :",
+        toastReverified: "Photo sur place revérifiée !",
+        toastScene1: "Scène 1 : Quiz de personnalité prêt",
+        toastScene2: "Scène 2 : Lieu bondé → 3 alternatives calmes",
+        toastScene3: "Scène 3 : 5/6 badges prêts ! Prenez la photo.",
+        toastReset: "Données de démonstration réinitialisées.",
+        crowd: { quiet: "Calme", normal: "Modéré", crowded: "Bondé", unknown: "Inconnu" },
+        categories: { "역사문화": "Histoire & Culture", "시장거리": "Marchés & Rues", "자연공원": "Nature & Parcs", "예술트렌드": "Art & Tendances" },
+        lines: { "3호선": "Ligne 3", "4호선": "Ligne 4", "2호선": "Ligne 2", "수인분당선": "Ligne Suin-Bundang", "1호선": "Ligne 1", "6호선": "Ligne 6", "간선/지선": "Bus urbain" },
+        collection: { name: "Collection des Ruelles Cachées", rewardTitle: "Explorateur des Ruelles Cachées" }
+      },
+      de: {
+        appTitle: "Seoul Ruhig",
+        appSubtitle: "Entspannt reisen ohne Massen",
+        navExplore: "Entdecken",
+        navQuiz: "Reisetyp",
+        navBadges: "Reisepass",
+        heroBadge: "Seoul Echtzeit-Stadtdaten",
+        heroTitle: "Meiden Sie Menschenmassen. Entdecken Sie Seouls stille Gassen.",
+        quietSpots: "Ruhige Orte",
+        crowdedSpots: "Überfüllte Orte",
+        placesUnit: "Orte",
+        filterAll: "Alle (15)",
+        filterHidden: "Geheimtipps (6)",
+        hiddenBadge: "Geheimtipp",
+        topRankPrefix: "Top #",
+        verifiedTag: "Bestätigt",
+        detailsBtn: "Details",
+        backBtn: "Zurück zur Liste",
+        popularRankPrefix: "Beliebtheit #",
+        hiddenRankPrefix: "Geheimtipp #",
+        f2Title: "Umgebungsauslastung & Nahverkehr",
+        f2Note: "Auslastung der Umgebung laut Seoul-Stadtdaten, keine exakte Stationszählung.",
+        nearestSubway: "Nächste U-Bahn",
+        nearestBus: "Nächste Bushaltestelle",
+        noneWithin15km: "Keine im Umkreis von 1,5 km",
+        f3Title: "Besucherprognose (35-Tage-Trend)",
+        f3Confidence: "Zuverlässigkeit: Mittel",
+        todayForecast: "Prognose Heute",
+        tomorrowForecast: "Prognose Morgen",
+        baselineLabel: "Tage 1–28 Basis",
+        recentLabel: "Letzte 7 Tage",
+        f3Note: "Prognose auf Basis von Suchtrends. Tatsächliche Lage kann abweichen.",
+        vs28d: "vs. 28T-Schnitt",
+        f4Badge: "Trubel vermeiden",
+        f4Title: "Zu voll? Probieren Sie diese 3 ruhigen Alternativen",
+        f4Subtitle: "Gleiche Kategorie, weniger bekannt und aktuell ruhig",
+        viewSpotDetails: "Ort ansehen",
+        spot100Btn: "Top-100-Info",
+        f5Title: "Vor-Ort-Foto-Abzeichen",
+        f5BadgeEarned: "Abzeichen erhalten",
+        f5GpsCheck: "GPS ≤ 150m + Web-Prüfung",
+        f5HeadingEarned: "Sie haben den Stempel dieses Ortes gesammelt!",
+        f5HeadingDefault: "Besuch per Foto bestätigen & Abzeichen sichern",
+        f5Desc: "Prüft GPS-Radius (≤150m), pHash-Fingerabdruck und Web-Bildersuche.",
+        step1Gps: "1. GPS-Radius (≤ 150m)",
+        step2Phash: "2. Eindeutiger pHash-Wert",
+        step3Vision: "3. Web-Suche: Nicht online gefunden",
+        btnReverify: "Erneut bestätigen",
+        btnSimulateCamera: "Vor-Ort-Kameraaufnahme simulieren",
+        btnUploadFile: "Oder Foto vom Gerät wählen",
+        f6Badge: "Spezialsammlung",
+        f6RewardPrefix: "Belohnung:",
+        f6Complete: "Sammlung vollständig!",
+        f6Progress: "Fortschritt",
+        passportTitle: "Seoul Stempelpass",
+        tapToVerify: "Ort antippen zum Bestätigen",
+        unlocked: "Freigeschaltet",
+        locked: "Gesperrt",
+        quizBadge: "Reisetyp-Test",
+        quizAutoFill: "Demo ausfüllen",
+        quizTitle: "Finden Sie ruhige Orte passend zu Ihrem Stil",
+        retakeBtn: "Neu starten",
+        typePrefix: "TYP",
+        axisQuiet: "Ruhig",
+        axisLively: "Lebhaft",
+        axisNature: "Natur",
+        axisCity: "Stadt",
+        axisHeritage: "Tradition",
+        axisTrendy: "Trendy",
+        top5Title: "Top 5 ruhige Orte für Ihren Reisetyp",
+        vibeMatchPct: "Übereinstimmung",
+        submitQuizBtn: "Meinen Reisetyp & Top 5 anzeigen",
+        answerAllPrompt: "Bitte alle 8 Fragen beantworten",
+        modalCollectionBadge: "Spezialsammlung freigeschaltet!",
+        modalCollectionDesc: "Sie haben alle 6 versteckten Gassen bestätigt! Ihre Entdecker-Trophäe wurde verliehen.",
+        closeBtn: "Schließen",
+        viewTrophyBtn: "Trophäe ansehen",
+        modalAntiCheatBadge: "Betrugsschutz",
+        modalAntiCheatTitle: "Abgelehnt: Bild im Internet gefunden",
+        antiCheatStep1: "1. GPS-Radius (≤ 150m)",
+        antiCheatStep2: "2. Lokale pHash-Distanz (> 8)",
+        antiCheatStep3: "3. Web-Bilderkennung",
+        antiCheatPass: "OK",
+        antiCheatFail: "TREFFER IM WEB",
+        antiCheatDesc: "Aus dem Internet heruntergeladene Fotos werden automatisch blockiert.",
+        understoodBtn: "Verstanden",
+        toastQuizIncomplete: "Bitte beantworten Sie zuerst alle 8 Fragen.",
+        toastAutoFilled: "Reisetyp automatisch ausgefüllt!",
+        toastBadgeEarned: "Abzeichen erhalten! Versteckte Gassen:",
+        toastReverified: "Vor-Ort-Foto erneut bestätigt!",
+        toastScene1: "Szene 1: Reisetyp-Quiz bereit",
+        toastScene2: "Szene 2: Überfüllter Ort → 3 ruhige Alternativen",
+        toastScene3: "Szene 3: 5/6 Abzeichen bereit! Kamera antippen.",
+        toastReset: "Demo-Daten zurückgesetzt.",
+        crowd: { quiet: "Ruhig", normal: "Normal", crowded: "Überfüllt", unknown: "Unbekannt" },
+        categories: { "역사문화": "Geschichte & Kultur", "시장거리": "Märkte & Straßen", "자연공원": "Natur & Parks", "예술트렌드": "Kunst & Trends" },
+        lines: { "3호선": "Linie 3", "4호선": "Linie 4", "2호선": "Linie 2", "수인분당선": "Suin-Bundang-Linie", "1호선": "Linie 1", "6호선": "Linie 6", "간선/지선": "Stadtbus" },
+        collection: { name: "Sammlung Versteckte Gassen", rewardTitle: "Entdecker der Versteckten Gassen" }
+      },
+      es: {
+        appTitle: "Seúl Calma",
+        appSubtitle: "Viaja sin multitudes",
+        navExplore: "Explorar",
+        navQuiz: "Test",
+        navBadges: "Pasaporte",
+        heroBadge: "Datos en tiempo real de Seúl",
+        heroTitle: "Evita las multitudes. Descubre los callejones tranquilos de Seúl.",
+        quietSpots: "Lugares tranquilos",
+        crowdedSpots: "Zonas concurridas",
+        placesUnit: "lugares",
+        filterAll: "Todos (15)",
+        filterHidden: "Joyas ocultas (6)",
+        hiddenBadge: "Joya oculta",
+        topRankPrefix: "Top #",
+        verifiedTag: "Verificado",
+        detailsBtn: "Detalles",
+        backBtn: "Volver a lugares",
+        popularRankPrefix: "Ranking #",
+        hiddenRankPrefix: "Rincón oculto #",
+        f2Title: "Congestión de la zona y transporte",
+        f2Note: "Nivel de afluencia de la zona alrededor del lugar, no el conteo exacto de la estación.",
+        nearestSubway: "Metro más cercano",
+        nearestBus: "Parada de bus cercana",
+        noneWithin15km: "Ninguno a menos de 1,5 km",
+        f3Title: "Pronóstico de visitantes (35 días)",
+        f3Confidence: "Confianza: Moderada",
+        todayForecast: "Pronóstico Hoy",
+        tomorrowForecast: "Pronóstico Mañana",
+        baselineLabel: "Base días 1–28",
+        recentLabel: "Últimos 7 días",
+        f3Note: "Predicción basada en búsquedas. Puede variar de la realidad.",
+        vs28d: "vs prom. 28d",
+        f4Badge: "Evita la multitud",
+        f4Title: "¿Demasiada gente? Prueba estas 3 alternativas tranquilas",
+        f4Subtitle: "Misma categoría, menos conocido y baja afluencia actual",
+        viewSpotDetails: "Ver detalles",
+        spot100Btn: "Info Top 100",
+        f5Title: "Insignia por foto en el lugar",
+        f5BadgeEarned: "Insignia obtenida",
+        f5GpsCheck: "GPS ≤ 150m + Control Web",
+        f5HeadingEarned: "¡Ya tienes el sello de este lugar!",
+        f5HeadingDefault: "Verifica tu visita y gana tu insignia",
+        f5Desc: "Verifica radio GPS (≤150m), huella pHash única y ausencia en Internet.",
+        step1Gps: "1. Radio GPS (≤ 150m)",
+        step2Phash: "2. Huella pHash única",
+        step3Vision: "3. Detección Web: No encontrada en línea",
+        btnReverify: "Verificar de nuevo",
+        btnSimulateCamera: "Simular captura de cámara en el lugar",
+        btnUploadFile: "O subir foto desde el dispositivo",
+        f6Badge: "Colección especial",
+        f6RewardPrefix: "Recompensa:",
+        f6Complete: "¡Colección completada!",
+        f6Progress: "Progreso",
+        passportTitle: "Pasaporte de sellos de Seúl",
+        tapToVerify: "Toca un lugar para verificar",
+        unlocked: "Desbloqueado",
+        locked: "Bloqueado",
+        quizBadge: "Personalidad viajera",
+        quizAutoFill: "Relleno rápido",
+        quizTitle: "Encuentra lugares tranquilos acordes a tu estilo",
+        retakeBtn: "Repetir",
+        typePrefix: "TIPO",
+        axisQuiet: "Tranquilo",
+        axisLively: "Animado",
+        axisNature: "Naturaleza",
+        axisCity: "Ciudad",
+        axisHeritage: "Tradición",
+        axisTrendy: "Tendencia",
+        top5Title: "Top 5 lugares tranquilos para tu perfil",
+        vibeMatchPct: "afinidad",
+        submitQuizBtn: "Ver mi tipo de viajero y Top 5",
+        answerAllPrompt: "Responde las 8 preguntas",
+        modalCollectionBadge: "¡Colección especial desbloqueada!",
+        modalCollectionDesc: "¡Verificaste los 6 callejones ocultos! Se te ha otorgado el trofeo especial de explorador.",
+        closeBtn: "Cerrar",
+        viewTrophyBtn: "Ver trofeo",
+        modalAntiCheatBadge: "Protección antifraude",
+        modalAntiCheatTitle: "Rechazado: imagen encontrada en Internet",
+        antiCheatStep1: "1. Radio GPS (≤ 150m)",
+        antiCheatStep2: "2. Distancia pHash local (> 8)",
+        antiCheatStep3: "3. Detección web de imágenes",
+        antiCheatPass: "PASA",
+        antiCheatFail: "ENCONTRADA EN WEB",
+        antiCheatDesc: "Las fotos descargadas de Internet se bloquean automáticamente para mantener la autenticidad.",
+        understoodBtn: "Entendido",
+        toastQuizIncomplete: "Por favor responde las 8 preguntas.",
+        toastAutoFilled: "¡Perfil completado y lugares recomendados!",
+        toastBadgeEarned: "¡Insignia obtenida! Callejones ocultos:",
+        toastReverified: "¡Foto verificada nuevamente!",
+        toastScene1: "Escena 1: Test de personalidad listo",
+        toastScene2: "Escena 2: Lugar lleno → 3 alternativas tranquilas",
+        toastScene3: "Escena 3: ¡5/6 insignias listas! Toca la cámara.",
+        toastReset: "Datos de demostración reiniciados.",
+        crowd: { quiet: "Tranquilo", normal: "Normal", crowded: "Concurrido", unknown: "Desconocido" },
+        categories: { "역사문화": "Historia y Cultura", "시장거리": "Mercados y Calles", "자연공원": "Naturaleza y Parques", "예술트렌드": "Arte y Tendencias" },
+        lines: { "3호선": "Línea 3", "4호선": "Línea 4", "2호선": "Línea 2", "수인분당선": "Línea Suin-Bundang", "1호선": "Línea 1", "6호선": "Línea 6", "간선/지선": "Autobús urbano" },
+        collection: { name: "Colección de Callejones Ocultos", rewardTitle: "Explorador de Callejones Ocultos" }
+      },
+      ja: {
+        appTitle: "ソウル静旅",
+        appSubtitle: "混雑回避スマートガイド",
+        navExplore: "探索",
+        navQuiz: "旅行診断",
+        navBadges: "パスポート",
+        heroBadge: "ソウル市リアルタイム都市データ",
+        heroTitle: "混雑を避けて、ソウルの静かな路地裏へ。",
+        quietSpots: "空いている名所",
+        crowdedSpots: "混雑エリア",
+        placesUnit: "ヶ所",
+        filterAll: "すべて (15)",
+        filterHidden: "穴場スポット (6)",
+        hiddenBadge: "穴場",
+        topRankPrefix: "人気 #",
+        verifiedTag: "認証済",
+        detailsBtn: "詳細",
+        backBtn: "一覧に戻る",
+        popularRankPrefix: "人気順位 #",
+        hiddenRankPrefix: "穴場順位 #",
+        f2Title: "周辺混雑度と交通アクセス",
+        f2Note: "ソウル市リアルタイムデータに基づく周辺エリアの混雑度であり、駅構内の人数ではありません。",
+        nearestSubway: "最寄りの地下鉄駅",
+        nearestBus: "最寄りのバス停",
+        noneWithin15km: "1.5km以内に該当なし",
+        f3Title: "訪問者予測（35日間検索推移）",
+        f3Confidence: "信頼度：普通",
+        todayForecast: "本日の予測",
+        tomorrowForecast: "明日の予測",
+        baselineLabel: "過去28日基準線",
+        recentLabel: "直近7日間",
+        f3Note: "検索量の推移に基づく予測であり、実際の現地状況と異なる場合があります。",
+        vs28d: "28日平均比",
+        f4Badge: "混雑回避のおすすめ",
+        f4Title: "混雑中？同じテーマの静かな代替スポット3選",
+        f4Subtitle: "同ジャンルで知名度が控えめな空いている名所",
+        viewSpotDetails: "詳細を見る",
+        spot100Btn: "人気100選情報",
+        f5Title: "現地写真認証バッジ",
+        f5BadgeEarned: "バッジ獲得済",
+        f5GpsCheck: "GPS 150m以内 + Web照合",
+        f5HeadingEarned: "このスポットのスタンプを獲得しました！",
+        f5HeadingDefault: "現地写真を撮影してバッジを獲得",
+        f5Desc: "GPS半径(150m以内)、pHash画像指紋の独自性、Web未掲載を自動検証します。",
+        step1Gps: "1. GPS位置範囲チェック (≤ 150m)",
+        step2Phash: "2. pHash画像指紋の独自性",
+        step3Vision: "3. Web画像照合：ネット上に一致なし",
+        btnReverify: "もう一度現地認証する",
+        btnSimulateCamera: "現地カメラ撮影をシミュレート",
+        btnUploadFile: "または端末から写真を選択",
+        f6Badge: "特別コレクション",
+        f6RewardPrefix: "達成特典：",
+        f6Complete: "コレクション達成！",
+        f6Progress: "達成状況",
+        passportTitle: "ソウル認証スタンプ帳",
+        tapToVerify: "タップして現地認証",
+        unlocked: "獲得済",
+        locked: "未獲得",
+        quizBadge: "旅行タイプ診断",
+        quizAutoFill: "デモ自動入力",
+        quizTitle: "あなたの好みに合う静かなソウル名所を発見",
+        retakeBtn: "やり直す",
+        typePrefix: "タイプ",
+        axisQuiet: "静か",
+        axisLively: "賑やか",
+        axisNature: "自然",
+        axisCity: "都会",
+        axisHeritage: "伝統",
+        axisTrendy: "トレンド",
+        top5Title: "相性抜群＆空いているおすすめ名所 Top 5",
+        vibeMatchPct: "一致度",
+        submitQuizBtn: "診断結果とおすすめ5選を見る",
+        answerAllPrompt: "全8問に回答してください",
+        modalCollectionBadge: "特別コレクション達成！",
+        modalCollectionDesc: "隠れた路地裏6ヶ所すべての認証を完了しました！特別探検家トロフィーが贈呈されました。",
+        closeBtn: "閉じる",
+        viewTrophyBtn: "トロフィーを見る",
+        modalAntiCheatBadge: "不正防止システム",
+        modalAntiCheatTitle: "認証拒否：ネット上で同一画像を検出",
+        antiCheatStep1: "1. GPS位置範囲 (≤ 150m)",
+        antiCheatStep2: "2. ローカルpHash距離 (> 8)",
+        antiCheatStep3: "3. Web画像検出チェック",
+        antiCheatPass: "通過",
+        antiCheatFail: "Web一致検出",
+        antiCheatDesc: "ネットから保存した画像は自動的にブロックされ、現地バッジの信頼性を守ります。",
+        understoodBtn: "確認",
+        toastQuizIncomplete: "先に全8問へ回答してください。",
+        toastAutoFilled: "診断を自動入力し、おすすめを表示しました！",
+        toastBadgeEarned: "バッジ獲得！隠れた路地裏達成：",
+        toastReverified: "現地写真の再認証が完了しました！",
+        toastScene1: "シーン1：旅行タイプ診断の準備完了",
+        toastScene2: "シーン2：混雑スポット → 静かな代替地3選",
+        toastScene3: "シーン3：5/6達成！下のカメラ撮影ボタンを押してください。",
+        toastReset: "デモデータを初期状態に戻しました。",
+        crowd: { quiet: "空いている", normal: "普通", crowded: "混雑", unknown: "不明" },
+        categories: { "역사문화": "歴史・文化", "시장거리": "市場・ストリート", "자연공원": "自然・公園", "예술트렌드": "アート・トレンド" },
+        lines: { "3호선": "3号線", "4호선": "4号線", "2호선": "2号線", "수인분당선": "水仁・盆唐線", "1호선": "1号線", "6호선": "6号線", "간선/지선": "市内バス" },
+        collection: { name: "隠れた路地裏コレクション", rewardTitle: "隠れた路地裏エクスプローラー" }
+      },
+      zh: {
+        appTitle: "首尔静游",
+        appSubtitle: "错峰出游智能指南",
+        navExplore: "探索",
+        navQuiz: "性格测试",
+        navBadges: "印章护照",
+        heroBadge: "首尔市实时城市数据",
+        heroTitle: "避开拥挤人潮，探索首尔静谧小巷。",
+        quietSpots: "空闲景点",
+        crowdedSpots: "拥挤区域",
+        placesUnit: "处",
+        filterAll: "全部 (15)",
+        filterHidden: "小众秘境 (6)",
+        hiddenBadge: "小众秘境",
+        topRankPrefix: "热度 #",
+        verifiedTag: "已认证",
+        detailsBtn: "详情",
+        backBtn: "返回列表",
+        popularRankPrefix: "热门排名 #",
+        hiddenRankPrefix: "小众排名 #",
+        f2Title: "周边拥挤度与交通信息",
+        f2Note: "基于首尔市实时城市数据的周边区域拥挤等级，非单个地铁站实时人数。",
+        nearestSubway: "最近地铁站",
+        nearestBus: "最近公交站",
+        noneWithin15km: "1.5公里内无站点",
+        f3Title: "客流预测（35天搜索趋势）",
+        f3Confidence: "可信度：中等",
+        todayForecast: "今日预测",
+        tomorrowForecast: "明日预测",
+        baselineLabel: "前28天基准线",
+        recentLabel: "近7天趋势",
+        f3Note: "基于搜索量趋势的预测，实际情况可能有所不同。",
+        vs28d: "对比28天均值",
+        f4Badge: "避峰推荐",
+        f4Title: "当前太拥挤？推荐3个同主题清静替代地",
+        f4Subtitle: "同类别中知名度较低且当前人流稀少的首尔景点",
+        viewSpotDetails: "查看详情",
+        spot100Btn: "百大景点信息",
+        f5Title: "现场拍照认证徽章",
+        f5BadgeEarned: "已获徽章",
+        f5GpsCheck: "GPS ≤ 150米 + 全网查重",
+        f5HeadingEarned: "您已集齐该景点的认证印章！",
+        f5HeadingDefault: "现场拍照认证并赢取专属徽章",
+        f5Desc: "自动验证GPS范围（≤150米）、pHash图像指纹唯一性及全网未检索记录。",
+        step1Gps: "1. GPS定位范围验证 (≤ 150米)",
+        step2Phash: "2. pHash图像指纹唯一性",
+        step3Vision: "3. 全网图像比对：未在网络发现",
+        btnReverify: "重新进行现场认证",
+        btnSimulateCamera: "模拟现场相机拍摄",
+        btnUploadFile: "或从相册上传照片",
+        f6Badge: "特别合集",
+        f6RewardPrefix: "集齐奖励：",
+        f6Complete: "合集已达成！",
+        f6Progress: "收集进度",
+        passportTitle: "首尔认证印章护照",
+        tapToVerify: "点击景点进行现场认证",
+        unlocked: "已解锁",
+        locked: "未解锁",
+        quizBadge: "旅行性格测试",
+        quizAutoFill: "演示快速填充",
+        quizTitle: "寻找契合您旅行风格的清静首尔景点",
+        retakeBtn: "重测",
+        typePrefix: "类型",
+        axisQuiet: "安静",
+        axisLively: "热闹",
+        axisNature: "自然",
+        axisCity: "都市",
+        axisHeritage: "传统",
+        axisTrendy: "潮流",
+        top5Title: "性格契合 + 人少清静推荐 Top 5",
+        vibeMatchPct: "契合度",
+        submitQuizBtn: "查看我的旅行类型与 Top 5 推荐",
+        answerAllPrompt: "请完成全部8道题",
+        modalCollectionBadge: "特别合集已解锁！",
+        modalCollectionDesc: "您已成功认证全部6处隐秘小巷！特别探索家奖杯徽章已自动发放。",
+        closeBtn: "关闭",
+        viewTrophyBtn: "查看奖杯",
+        modalAntiCheatBadge: "防作弊保护机制",
+        modalAntiCheatTitle: "认证被拒：在互联网发现相同图片",
+        antiCheatStep1: "1. GPS定位范围 (≤ 150米)",
+        antiCheatStep2: "2. 本地pHash指纹距离 (> 8)",
+        antiCheatStep3: "3. 全网图像检测",
+        antiCheatPass: "通过",
+        antiCheatFail: "发现网络原图",
+        antiCheatDesc: "系统会自动拦截从网络下载的网图，确保每一枚现场徽章真实有效。",
+        understoodBtn: "我知道了",
+        toastQuizIncomplete: "请先回答全部8道题目。",
+        toastAutoFilled: "已自动完成测试并匹配专属景点！",
+        toastBadgeEarned: "获得徽章！隐秘小巷进度：",
+        toastReverified: "现场照片重新认证成功！",
+        toastScene1: "场景 1：旅行性格测试已就绪",
+        toastScene2: "场景 2：景福宫拥挤 → 3个清静替代推荐",
+        toastScene3: "场景 3：已集齐5/6！点击下方模拟拍摄按钮。",
+        toastReset: "所有演示数据已重置。",
+        crowd: { quiet: "空闲", normal: "适中", crowded: "拥挤", unknown: "未知" },
+        categories: { "역사문화": "历史文化", "시장거리": "市集街区", "자연공원": "自然公园", "예술트렌드": "艺术潮流" },
+        lines: { "3호선": "3号线", "4호선": "4号线", "2호선": "2号线", "수인분당선": "水仁·盆唐线", "1호선": "1号线", "6호선": "6号线", "간선/지선": "市内公交" },
+        collection: { name: "隐秘小巷合集", rewardTitle: "隐秘小巷探索家" }
+      },
+      ar: {
+        appTitle: "سيول الهادئة",
+        appSubtitle: "سفر ذكي بعيداً عن الزحام",
+        navExplore: "استكشاف",
+        navQuiz: "اختبار الذوق",
+        navBadges: "جواز السفر",
+        heroBadge: "بيانات مدينة سيول المباشرة",
+        heroTitle: "تجنب الازدحام واكتشف أزقة سيول الهادئة.",
+        quietSpots: "أماكن هادئة",
+        crowdedSpots: "مناطق مزدحمة",
+        placesUnit: "أماكن",
+        filterAll: "الكل (15)",
+        filterHidden: "كنوز مخفية (6)",
+        hiddenBadge: "كنز مخفي",
+        topRankPrefix: "الأشهر #",
+        verifiedTag: "موثق",
+        detailsBtn: "التفاصيل",
+        backBtn: "العودة للقائمة",
+        popularRankPrefix: "تصنيف الشهرة #",
+        hiddenRankPrefix: "تصنيف الكنوز #",
+        f2Title: "ازدحام المنطقة والمواصلات",
+        f2Note: "مستوى الازدحام في المنطقة المحيطة بالموقع وليس عدد الركاب داخل المحطة.",
+        nearestSubway: "أقرب محطة مترو",
+        nearestBus: "أقرب موقف حافلات",
+        noneWithin15km: "لا يوجد ضمن 1.5 كم",
+        f3Title: "توقعات الزوار (اتجاه 35 يوماً)",
+        f3Confidence: "الموثوقية: متوسطة",
+        todayForecast: "توقعات اليوم",
+        tomorrowForecast: "توقعات الغد",
+        baselineLabel: "خط الأساس 28 يوماً",
+        recentLabel: "آخر 7 أيام",
+        f3Note: "توقعات مبنية على حجم البحث وقد تختلف عن الواقع.",
+        vs28d: "مقارنة بمتوسط 28 يوماً",
+        f4Badge: "تجنب الزحام",
+        f4Title: "مزدحم جداً؟ جرب هذه البدائل الهادئة الثلاثة",
+        f4Subtitle: "نفس الفئة، شهرة أقل وازدحام منخفض حالياً",
+        viewSpotDetails: "عرض التفاصيل",
+        spot100Btn: "دليل أفضل 100",
+        f5Title: "شارة توثيق الصورة الميدانية",
+        f5BadgeEarned: "تم الحصول على الشارة",
+        f5GpsCheck: "نطاق GPS ≤ 150م + فحص الويب",
+        f5HeadingEarned: "لقد حصلت على ختم هذا المكان!",
+        f5HeadingDefault: "وثّق زيارتك بالصورة واحصل على الشارة",
+        f5Desc: "يتحقق من نطاق GPS (≤150م)، وبصمة pHash الفريدة، وعدم وجود الصورة على الإنترنت.",
+        step1Gps: "1. التحقق من نطاق GPS (≤ 150م)",
+        step2Phash: "2. تفرد بصمة الصورة pHash",
+        step3Vision: "3. فحص الويب: غير موجودة على الإنترنت",
+        btnReverify: "إعادة التوثيق الميداني",
+        btnSimulateCamera: "محاكاة التقاط صورة بالكاميرا",
+        btnUploadFile: "أو رفع صورة من الجهاز",
+        f6Badge: "مجموعة خاصة",
+        f6RewardPrefix: "المكافأة:",
+        f6Complete: "اكتملت المجموعة!",
+        f6Progress: "التقدم",
+        passportTitle: "جواز أختام سيول",
+        tapToVerify: "اضغط على مكان للتوثيق",
+        unlocked: "مفتوح",
+        locked: "مغلق",
+        quizBadge: "شخصية السفر",
+        quizAutoFill: "تعبئة سريعة للعرض",
+        quizTitle: "اكتشف أماكن سيول الهادئة المناسبة لذوقك",
+        retakeBtn: "إعادة الاختبار",
+        typePrefix: "النمط",
+        axisQuiet: "هادئ",
+        axisLively: "حيوي",
+        axisNature: "طبيعة",
+        axisCity: "مدينة",
+        axisHeritage: "تراث",
+        axisTrendy: "عصري",
+        top5Title: "أفضل 5 أماكن هادئة تناسب شخصيتك",
+        vibeMatchPct: "توافق",
+        submitQuizBtn: "عرض شخصيتي وأفضل 5 وجهات",
+        answerAllPrompt: "أجب عن الأسئلة الثمانية",
+        modalCollectionBadge: "تم فتح المجموعة الخاصة!",
+        modalCollectionDesc: "لقد وثّقت جميع الأزقة المخفية الستة! تم منحك كأس المستكشف الخاص تلقائياً.",
+        closeBtn: "إغلاق",
+        viewTrophyBtn: "عرض الكأس",
+        modalAntiCheatBadge: "نظام مكافحة الغش",
+        modalAntiCheatTitle: "تم الرفض: الصورة موجودة على الإنترنت",
+        antiCheatStep1: "1. نطاق GPS (≤ 150م)",
+        antiCheatStep2: "2. مسافة pHash المحلية (> 8)",
+        antiCheatStep3: "3. كشف الصور على الويب",
+        antiCheatPass: "ناجح",
+        antiCheatFail: "مطابقة على الويب",
+        antiCheatDesc: "يتم حظر الصور المحملة من الإنترنت تلقائياً للحفاظ على مصداقية الشارات.",
+        understoodBtn: "مفهوم",
+        toastQuizIncomplete: "يرجى الإجابة عن جميع الأسئلة الثمانية أولاً.",
+        toastAutoFilled: "تم إكمال الاختبار ومطابقة الوجهات!",
+        toastBadgeEarned: "تم فتح الشارة! الأزقة المخفية:",
+        toastReverified: "تمت إعادة توثيق الصورة بنجاح!",
+        toastScene1: "المشهد 1: اختبار شخصية السفر جاهز",
+        toastScene2: "المشهد 2: موقع مزدحم ← 3 بدائل هادئة",
+        toastScene3: "المشهد 3: 5/6 شارات جاهزة! اضغط على الكاميرا.",
+        toastReset: "تمت إعادة ضبط جميع بيانات العرض.",
+        crowd: { quiet: "هادئ", normal: "معتدل", crowded: "مزدحم", unknown: "غير معروف" },
+        categories: { "역사문화": "التاريخ والثقافة", "시장거리": "الأسواق والشوارع", "자연공원": "الطبيعة والحدائق", "예술트렌드": "الفن والصيحات" },
+        lines: { "3호선": "الخط 3", "4호선": "الخط 4", "2호선": "الخط 2", "수인분당선": "خط سوين-بوندانغ", "1호선": "الخط 1", "6호선": "الخط 6", "간선/지선": "حافلة مدينة" },
+        collection: { name: "مجموعة الأزقة المخفية", rewardTitle: "مستكشف الأزقة المخفية" }
+      },
+      tl: {
+        appTitle: "Seoul Kalma",
+        appSubtitle: "Biyaheng Walang Siksikan",
+        navExplore: "Tuklasin",
+        navQuiz: "Pagsusulit",
+        navBadges: "Pasaporte",
+        heroBadge: "Live na Datos ng Lungsod ng Seoul",
+        heroTitle: "Iwasan ang siksikan. Tuklasin ang tahimik na eskinita ng Seoul.",
+        quietSpots: "Maluwag na Lugar",
+        crowdedSpots: "Mataong Lugar",
+        placesUnit: "lugar",
+        filterAll: "Lahat (15)",
+        filterHidden: "Tagong Yaman (6)",
+        hiddenBadge: "Tagong Yaman",
+        topRankPrefix: "Sikat #",
+        verifiedTag: "Kumpirmado",
+        detailsBtn: "Detalye",
+        backBtn: "Bumalik sa Listahan",
+        popularRankPrefix: "Antas ng Sikat #",
+        hiddenRankPrefix: "Tagong Yaman #",
+        f2Title: "Siksikan sa Lugar at Transportasyon",
+        f2Note: "Antas ng dami ng tao sa paligid ng lugar, hindi eksaktong bilang sa istasyon.",
+        nearestSubway: "Pinakamalapit na Tren",
+        nearestBus: "Pinakamalapit na Bus",
+        noneWithin15km: "Walang istasyon sa 1.5 km",
+        f3Title: "Taya ng Bisita (35-Araw na Trend)",
+        f3Confidence: "Kumpiyansa: Katamtaman",
+        todayForecast: "Taya Ngayon",
+        tomorrowForecast: "Taya Bukas",
+        baselineLabel: "Batayan Araw 1–28",
+        recentLabel: "Huling 7 Araw",
+        f3Note: "Taya mula sa dalas ng paghahanap. Maaaring mag-iba sa aktwal.",
+        vs28d: "kumpara sa 28 araw",
+        f4Badge: "Iwasan ang Siksikan",
+        f4Title: "Masyadong Matao? Subukan ang 3 Tahimik na Alternatibo",
+        f4Subtitle: "Parehong tema, hindi masyadong matao, at mas maluwag ngayon",
+        viewSpotDetails: "Tingnan ang Lugar",
+        spot100Btn: "Gabay Top 100",
+        f5Title: "Tsapa sa Larawan sa Lugar",
+        f5BadgeEarned: "Nakuha ang Tsapa",
+        f5GpsCheck: "GPS ≤ 150m + Web Check",
+        f5HeadingEarned: "Nakuha mo na ang tatak ng lugar na ito!",
+        f5HeadingDefault: "Kumpirmahin ang Bisita at Makakuha ng Tsapa",
+        f5Desc: "Sinusuri ang GPS (≤150m), natatanging pHash, at kung wala sa internet ang larawan.",
+        step1Gps: "1. Saklaw ng GPS (≤ 150m)",
+        step2Phash: "2. Natatanging pHash ng Larawan",
+        step3Vision: "3. Pagsusuri sa Web: Walang Katulad Online",
+        btnReverify: "Kumpirmahin Muli",
+        btnSimulateCamera: "Gayahin ang Pagkuha ng Larawan sa Lugar",
+        btnUploadFile: "O Mag-upload ng Larawan",
+        f6Badge: "Espesyal na Koleksyon",
+        f6RewardPrefix: "Gantimpala:",
+        f6Complete: "Kumpleto na ang Koleksyon!",
+        f6Progress: "Progreso",
+        passportTitle: "Pasaporte ng Tatak sa Seoul",
+        tapToVerify: "Pindutin ang lugar upang kumpirmahin",
+        unlocked: "Nakuha na",
+        locked: "Naka-lock",
+        quizBadge: "Personalidad sa Paglalakbay",
+        quizAutoFill: "Mabilisang Demo",
+        quizTitle: "Hanapin ang Tahimik na Lugar na Bagay sa Iyo",
+        retakeBtn: "Ulitin",
+        typePrefix: "URI",
+        axisQuiet: "Tahimik",
+        axisLively: "Masigla",
+        axisNature: "Kalikasan",
+        axisCity: "Lungsod",
+        axisHeritage: "Tradisyon",
+        axisTrendy: "Uso",
+        top5Title: "Top 5 na Maluwag at Bagay sa Iyong Hilig",
+        vibeMatchPct: "tugma",
+        submitQuizBtn: "Tingnan ang Uri Ko at Top 5 na Lugar",
+        answerAllPrompt: "Sagutan ang Lahat ng 8 Tanong",
+        modalCollectionBadge: "Nabuksan ang Espesyal na Koleksyon!",
+        modalCollectionDesc: "Nakumpirma mo ang lahat ng 6 na Tagong Eskinita! Iginawad na ang iyong espesyal na tropeo.",
+        closeBtn: "Isara",
+        viewTrophyBtn: "Tingnan ang Tropeo",
+        modalAntiCheatBadge: "Proteksyon Laban sa Daya",
+        modalAntiCheatTitle: "Tinanggihan: Nakita sa Internet ang Larawan",
+        antiCheatStep1: "1. Saklaw ng GPS (≤ 150m)",
+        antiCheatStep2: "2. Lokal na pHash Distance (> 8)",
+        antiCheatStep3: "3. Pagsusuri ng Larawan sa Web",
+        antiCheatPass: "PASADO",
+        antiCheatFail: "NAKITA SA WEB",
+        antiCheatDesc: "Awtomatikong hinaharang ang mga larawang galing sa internet upang manatiling tunay ang mga tsapa.",
+        understoodBtn: "Naiintindihan",
+        toastQuizIncomplete: "Pakisagutan muna ang lahat ng 8 tanong.",
+        toastAutoFilled: "Awtomatikong nasagutan at naitugma ang mga lugar!",
+        toastBadgeEarned: "Nakuha ang Tsapa! Tagong Eskinita:",
+        toastReverified: "Nakumpirma muli ang larawan sa lugar!",
+        toastScene1: "Eksena 1: Handa na ang Pagsusulit sa Paglalakbay",
+        toastScene2: "Eksena 2: Mataong Lugar → 3 Tahimik na Alternatibo",
+        toastScene3: "Eksena 3: 5/6 Tsapa Handa na! Pindutin ang Kamera.",
+        toastReset: "Na-reset na ang lahat ng datos ng demo.",
+        crowd: { quiet: "Maluwag", normal: "Katamtaman", crowded: "Matao", unknown: "Hindi Alam" },
+        categories: { "역사문화": "Kasaysayan at Kultura", "시장거리": "Pamilihan at Kalye", "자연공원": "Kalikasan at Parke", "예술트렌드": "Sining at Uso" },
+        lines: { "3호선": "Linya 3", "4호선": "Linya 4", "2호선": "Linya 2", "수인분당선": "Linya Suin-Bundang", "1호선": "Linya 1", "6호선": "Linya 6", "간선/지선": "Bus ng Lungsod" },
+        collection: { name: "Koleksyon ng Tagong Eskinita", rewardTitle: "Manlalakbay ng Tagong Eskinita" }
+      },
+      it: {
+        appTitle: "Seul Calma",
+        appSubtitle: "Viaggia lontano dalla folla",
+        navExplore: "Esplora",
+        navQuiz: "Profilo",
+        navBadges: "Passaporto",
+        heroBadge: "Dati in tempo reale di Seul",
+        heroTitle: "Evita la folla. Scopri i vicoli tranquilli di Seul.",
+        quietSpots: "Luoghi tranquilli",
+        crowdedSpots: "Zone affollate",
+        placesUnit: "luoghi",
+        filterAll: "Tutti (15)",
+        filterHidden: "Gemme nascoste (6)",
+        hiddenBadge: "Gemma nascosta",
+        topRankPrefix: "Top #",
+        verifiedTag: "Verificato",
+        detailsBtn: "Dettagli",
+        backBtn: "Torna alla lista",
+        popularRankPrefix: "Popolarità #",
+        hiddenRankPrefix: "Gemma nascosta #",
+        f2Title: "Affollamento dell'area e trasporti",
+        f2Note: "Livello di affollamento dell'area circostante, non il conteggio esatto in stazione.",
+        nearestSubway: "Metro più vicina",
+        nearestBus: "Fermata bus vicina",
+        noneWithin15km: "Nessuna entro 1,5 km",
+        f3Title: "Previsione visitatori (35 giorni)",
+        f3Confidence: "Affidabilità: Moderata",
+        todayForecast: "Previsione Oggi",
+        tomorrowForecast: "Previsione Domani",
+        baselineLabel: "Base giorni 1–28",
+        recentLabel: "Ultimi 7 giorni",
+        f3Note: "Previsione basata sulle ricerche. La realtà può differire.",
+        vs28d: "vs media 28g",
+        f4Badge: "Evita la folla",
+        f4Title: "Troppa folla? Prova queste 3 alternative tranquille",
+        f4Subtitle: "Stessa categoria, meno conosciute e poco affollate",
+        viewSpotDetails: "Vedi dettagli",
+        spot100Btn: "Guida Top 100",
+        f5Title: "Badge foto sul posto",
+        f5BadgeEarned: "Badge ottenuto",
+        f5GpsCheck: "GPS ≤ 150m + Controllo Web",
+        f5HeadingEarned: "Hai ottenuto il timbro di questo luogo!",
+        f5HeadingDefault: "Verifica la visita e ottieni il badge",
+        f5Desc: "Verifica raggio GPS (≤150m), impronta pHash unica e assenza sul Web.",
+        step1Gps: "1. Raggio GPS (≤ 150m)",
+        step2Phash: "2. Impronta pHash unica",
+        step3Vision: "3. Rilevamento Web: Non trovata online",
+        btnReverify: "Verifica di nuovo",
+        btnSimulateCamera: "Simula scatto fotocamera sul posto",
+        btnUploadFile: "Oppure carica foto dal dispositivo",
+        f6Badge: "Collezione speciale",
+        f6RewardPrefix: "Premio:",
+        f6Complete: "Collezione completata!",
+        f6Progress: "Progresso",
+        passportTitle: "Passaporto timbri di Seul",
+        tapToVerify: "Tocca un luogo per verificare",
+        unlocked: "Sbloccato",
+        locked: "Bloccato",
+        quizBadge: "Personalità di viaggio",
+        quizAutoFill: "Compilazione demo",
+        quizTitle: "Trova luoghi tranquilli adatti al tuo stile",
+        retakeBtn: "Ripeti",
+        typePrefix: "PROFILO",
+        axisQuiet: "Tranquillo",
+        axisLively: "Vivace",
+        axisNature: "Natura",
+        axisCity: "Città",
+        axisHeritage: "Tradizione",
+        axisTrendy: "Tendenza",
+        top5Title: "Top 5 luoghi tranquilli per il tuo profilo",
+        vibeMatchPct: "affinità",
+        submitQuizBtn: "Vedi il mio profilo e i Top 5",
+        answerAllPrompt: "Rispondi a tutte le 8 domande",
+        modalCollectionBadge: "Collezione speciale sbloccata!",
+        modalCollectionDesc: "Hai verificato tutti i 6 vicoli nascosti! Ti è stato assegnato il trofeo speciale di esploratore.",
+        closeBtn: "Chiudi",
+        viewTrophyBtn: "Vedi trofeo",
+        modalAntiCheatBadge: "Protezione antifrode",
+        modalAntiCheatTitle: "Rifiutato: immagine trovata online",
+        antiCheatStep1: "1. Raggio GPS (≤ 150m)",
+        antiCheatStep2: "2. Distanza pHash locale (> 8)",
+        antiCheatStep3: "3. Rilevamento immagini Web",
+        antiCheatPass: "OK",
+        antiCheatFail: "TROVATA SUL WEB",
+        antiCheatDesc: "Le foto scaricate dal web vengono bloccate automaticamente per garantire l'autenticità.",
+        understoodBtn: "Capito",
+        toastQuizIncomplete: "Rispondi prima a tutte le 8 domande.",
+        toastAutoFilled: "Profilo compilato e luoghi abbinati!",
+        toastBadgeEarned: "Badge sbloccato! Vicoli nascosti:",
+        toastReverified: "Foto verificata nuovamente!",
+        toastScene1: "Scena 1: Quiz di personalità pronto",
+        toastScene2: "Scena 2: Luogo affollato → 3 alternative tranquille",
+        toastScene3: "Scena 3: 5/6 badge pronti! Tocca la fotocamera.",
+        toastReset: "Dati demo reimpostati.",
+        crowd: { quiet: "Tranquillo", normal: "Normale", crowded: "Affollato", unknown: "Sconosciuto" },
+        categories: { "역사문화": "Storia e Cultura", "시장거리": "Mercati e Strade", "자연공원": "Natura e Parchi", "예술트렌드": "Arte e Tendenze" },
+        lines: { "3호선": "Linea 3", "4호선": "Linea 4", "2호선": "Linea 2", "수인분당선": "Linea Suin-Bundang", "1호선": "Linea 1", "6호선": "Linea 6", "간선/지선": "Bus urbano" },
+        collection: { name: "Collezione Vicoli Nascosti", rewardTitle: "Esploratore dei Vicoli Nascosti" }
+      }
+    };
+
+    // -----------------------------------------------------------------------
+    // 2. ALL 15 SEOUL SPOTS LOCALIZED IN ALL 10 LANGUAGES
+    // -----------------------------------------------------------------------
+    const SPOTS_BASE = [
+      { id: 1, category: "역사문화", lat: 37.5796, lon: 126.9770, rank_100: 1, is_hidden: false, v_lively: 0.2, v_city: 0.3, v_trend: -0.9, crowd_score: 0.95, r7: 1.38, r3: 1.45 },
+      { id: 2, category: "역사문화", lat: 37.5826, lon: 126.9830, rank_100: 2, is_hidden: false, v_lively: 0.3, v_city: 0.2, v_trend: -0.7, crowd_score: 0.70, r7: 1.25, r3: 1.32 },
+      { id: 3, category: "역사문화", lat: 37.5794, lon: 126.9910, rank_100: 3, is_hidden: false, v_lively: -0.4, v_city: 0.1, v_trend: -0.9, crowd_score: 0.40, r7: 1.15, r3: 1.35 },
+      { id: 4, category: "시장거리", lat: 37.5636, lon: 126.9822, rank_100: 1, is_hidden: false, v_lively: 0.9, v_city: 0.9, v_trend: 0.6, crowd_score: 0.95, r7: 1.42, r3: 1.50 },
+      { id: 5, category: "역사문화", lat: 37.5239, lon: 126.9803, rank_100: 4, is_hidden: false, v_lively: -0.3, v_city: 0.4, v_trend: -0.5, crowd_score: 0.40, r7: 0.92, r3: 0.88 },
+      { id: 6, category: "예술트렌드", lat: 37.5446, lon: 127.0557, rank_100: 2, is_hidden: false, v_lively: 0.7, v_city: 0.8, v_trend: 0.95, crowd_score: 0.70, r7: 1.48, r3: 1.55 },
+      { id: 7, category: "자연공원", lat: 37.5444, lon: 127.0374, rank_100: 3, is_hidden: false, v_lively: -0.2, v_city: -0.8, v_trend: 0.1, crowd_score: 0.40, r7: 1.05, r3: 0.95 },
+      { id: 8, category: "예술트렌드", lat: 37.5563, lon: 126.9236, rank_100: 1, is_hidden: false, v_lively: 0.95, v_city: 0.9, v_trend: 0.9, crowd_score: 0.95, r7: 1.36, r3: 1.40 },
+      { id: 9, category: "예술트렌드", lat: 37.5743, lon: 126.9894, rank_100: 5, is_hidden: false, v_lively: 0.5, v_city: 0.5, v_trend: 0.6, crowd_score: 0.70, r7: 1.22, r3: 1.18 },
+      { id: 10, category: "예술트렌드", lat: 37.5176, lon: 126.8950, rank_100: 40, is_hidden: true, v_lively: -0.3, v_city: 0.6, v_trend: 0.5, crowd_score: 0.15, r7: 0.72, r3: 0.68 },
+      { id: 11, category: "역사문화", lat: 37.5992, lon: 126.9957, rank_100: 45, is_hidden: true, v_lively: -0.9, v_city: -0.3, v_trend: -0.8, crowd_score: 0.15, r7: 0.65, r3: 0.62 },
+      { id: 12, category: "시장거리", lat: 37.5430, lon: 126.9870, rank_100: 35, is_hidden: true, v_lively: 0.3, v_city: 0.6, v_trend: 0.5, crowd_score: 0.15, r7: 0.78, r3: 0.74 },
+      { id: 13, category: "시장거리", lat: 37.5560, lon: 126.9054, rank_100: 30, is_hidden: true, v_lively: 0.5, v_city: 0.5, v_trend: -0.1, crowd_score: 0.40, r7: 0.85, r3: 0.79 },
+      { id: 14, category: "역사문화", lat: 37.5800, lon: 126.9720, rank_100: 38, is_hidden: true, v_lively: -0.4, v_city: 0.3, v_trend: -0.2, crowd_score: 0.15, r7: 0.74, r3: 0.71 },
+      { id: 15, category: "자연공원", lat: 37.5612, lon: 126.9250, rank_100: 33, is_hidden: true, v_lively: 0.0, v_city: -0.2, v_trend: 0.5, crowd_score: 0.15, r7: 0.76, r3: 0.73 }
+    ];
+
+    const SPOTS_L10N = {
+      1: {
+        en: ["Gyeongbokgung Palace", "Jongno-gu", "Main royal palace of the Joseon dynasty."],
+        ko: ["경복궁", "종로구", "조선 왕조의 법궁이자 서울을 대표하는 고궁."],
+        fr: ["Palais Gyeongbokgung", "Jongno-gu", "Palais royal principal de la dynastie Joseon."],
+        de: ["Gyeongbokgung-Palast", "Jongno-gu", "Hauptkönigspalast der Joseon-Dynastie."],
+        es: ["Palacio Gyeongbokgung", "Jongno-gu", "Palacio real principal de la dinastía Joseon."],
+        ja: ["景福宮", "鍾路区", "朝鮮王朝の正宮でありソウルを代表する古宮。"],
+        zh: ["景福宫", "钟路区", "朝鲜王朝正宫，首尔最具代表性的古宫。"],
+        ar: ["قصر غيونغبوكغونغ", "حي جونغنو", "القصر الملكي الرئيسي لسلالة جوسون."],
+        tl: ["Palasyo ng Gyeongbokgung", "Jongno-gu", "Pangunahing palasyo ng dinastiyang Joseon."],
+        it: ["Palazzo Gyeongbokgung", "Jongno-gu", "Palazzo reale principale della dinastia Joseon."]
+      },
+      2: {
+        en: ["Bukchon Hanok Village", "Jongno-gu", "Traditional hanok alley village."],
+        ko: ["북촌한옥마을", "종로구", "전통 한옥이 고즈넉하게 모여 있는 종로 북촌 골목."],
+        fr: ["Village Hanok de Bukchon", "Jongno-gu", "Village traditionnel aux ruelles bordées de maisons hanok."],
+        de: ["Hanok-Dorf Bukchon", "Jongno-gu", "Traditionelles Dorf mit historischen Hanok-Gassen."],
+        es: ["Aldea Hanok de Bukchon", "Jongno-gu", "Aldea tradicional con callejones de casas hanok."],
+        ja: ["北村韓屋村", "鍾路区", "伝統家屋「韓屋」が立ち並ぶ風情ある路地。"],
+        zh: ["北村韩屋村", "钟路区", "保存完好的朝鲜时代传统韩屋聚落小巷。"],
+        ar: ["قرية بوكتشون هانوك", "حي جونغنو", "قرية تقليدية تضم أزقة من منازل الهانوك التراثية."],
+        tl: ["Nayon ng Bukchon Hanok", "Jongno-gu", "Tradisyonal na nayon na may mga eskinita ng hanok."],
+        it: ["Villaggio Hanok di Bukchon", "Jongno-gu", "Villaggio tradizionale con vicoli di case hanok."]
+      },
+      3: {
+        en: ["Changdeokgung Palace", "Jongno-gu", "UNESCO palace with a secret garden."],
+        ko: ["창덕궁", "종로구", "아름다운 후원을 품은 유네스코 세계유산 궁궐."],
+        fr: ["Palais Changdeokgung", "Jongno-gu", "Palais classé à l'UNESCO célèbre pour son jardin secret."],
+        de: ["Changdeokgung-Palast", "Jongno-gu", "UNESCO-Palast mit berühmtem geheimem Garten."],
+        es: ["Palacio Changdeokgung", "Jongno-gu", "Palacio de la UNESCO famoso por su jardín secreto."],
+        ja: ["昌徳宮", "鍾路区", "美しい秘苑を持つユネスコ世界遺産の宮殿。"],
+        zh: ["昌德宫", "钟路区", "拥有绝美秘苑的联合国教科文组织世界遗产宫殿。"],
+        ar: ["قصر تشانغدوكغونغ", "حي جونغنو", "قصر مدرج في اليونسكو يشتهر بحديقته السرية."],
+        tl: ["Palasyo ng Changdeokgung", "Jongno-gu", "Palasyo ng UNESCO na may lihim na hardin."],
+        it: ["Palazzo Changdeokgung", "Jongno-gu", "Palazzo UNESCO celebre per il suo giardino segreto."]
+      },
+      4: {
+        en: ["Myeongdong", "Jung-gu", "Famous shopping and street food district."],
+        ko: ["명동", "중구", "쇼핑과 길거리 음식이 활기차게 모인 대표 거리."],
+        fr: ["Myeongdong", "Jung-gu", "Quartier animé réputé pour le shopping et la cuisine de rue."],
+        de: ["Myeongdong", "Jung-gu", "Bekanntes Einkaufs- und Streetfood-Viertel."],
+        es: ["Myeongdong", "Jung-gu", "Famoso distrito de compras y comida callejera."],
+        ja: ["明洞", "中区", "ショッピングと屋台グルメが集まる活気ある繁華街。"],
+        zh: ["明洞", "中区", "汇集潮流购物与街头美食的繁华商圈。"],
+        ar: ["ميونغ دونغ", "حي جونغ", "حي شهير للتسوق وأطعمة الشوارع الحيوية."],
+        tl: ["Myeongdong", "Jung-gu", "Sikat na distrito para sa pamimili at pagkaing kalye."],
+        it: ["Myeongdong", "Jung-gu", "Celebre quartiere dello shopping e dello street food."]
+      },
+      5: {
+        en: ["National Museum of Korea", "Yongsan-gu", "Korea's largest museum."],
+        ko: ["국립중앙박물관", "용산구", "한국의 역사와 문화재를 한눈에 보는 대표 박물관."],
+        fr: ["Musée national de Corée", "Yongsan-gu", "Le plus grand musée d'histoire et d'art de Corée."],
+        de: ["Nationalmuseum von Korea", "Yongsan-gu", "Das größte Museum Koreas für Geschichte und Kunst."],
+        es: ["Museo Nacional de Corea", "Yongsan-gu", "El museo más grande e importante de Corea."],
+        ja: ["国立中央博物館", "龍山区", "韓国の歴史と文化財を一望できる国内最大の博物館。"],
+        zh: ["韩国国立中央博物馆", "龙山区", "全景展示韩国历史与艺术瑰宝的最大博物馆。"],
+        ar: ["المتحف الوطني الكوري", "حي يونغسان", "أكبر متحف للتاريخ والفنون في كوريا."],
+        tl: ["Pambansang Museo ng Korea", "Yongsan-gu", "Ang pinakamalaking museo sa buong Korea."],
+        it: ["Museo Nazionale della Corea", "Yongsan-gu", "Il più grande museo di storia e arte della Corea."]
+      },
+      6: {
+        en: ["Seongsu-dong", "Seongdong-gu", "Trendy cafes and pop-up stores."],
+        ko: ["성수동", "성동구", "감각적인 카페와 팝업스토어가 모인 트렌드 거리."],
+        fr: ["Seongsu-dong", "Seongdong-gu", "Quartier branché aux cafés design et boutiques éphémères."],
+        de: ["Seongsu-dong", "Seongdong-gu", "Trendviertel mit Design-Cafés und Pop-up-Stores."],
+        es: ["Seongsu-dong", "Seongdong-gu", "Barrio de moda con cafés de diseño y tiendas pop-up."],
+        ja: ["聖水洞", "城東区", "おしゃれなカフェやポップアップストアが集まる最先端エリア。"],
+        zh: ["圣水洞", "城东区", "聚集个性咖啡馆与潮流快闪店的时尚街区。"],
+        ar: ["سيونغسو دونغ", "حي سيونغدونغ", "حي عصري يشتهر بالمقاهي المبتكرة والمتاجر المؤقتة."],
+        tl: ["Seongsu-dong", "Seongdong-gu", "Usong lugar na puno ng mga kapihan at pop-up store."],
+        it: ["Seongsu-dong", "Seongdong-gu", "Quartiere di tendenza con caffè di design e pop-up store."]
+      },
+      7: {
+        en: ["Seoul Forest", "Seongdong-gu", "Large urban park."],
+        ko: ["서울숲", "성동구", "도심 속에서 숲과 산책을 즐기는 대형 생태 공원."],
+        fr: ["Forêt de Séoul", "Seongdong-gu", "Grand parc urbain verdoyant idéal pour se promener."],
+        de: ["Seoul-Wald", "Seongdong-gu", "Weitläufiger Stadtpark zum Entspannen im Grünen."],
+        es: ["Bosque de Seúl", "Seongdong-gu", "Gran parque urbano para pasear rodeado de naturaleza."],
+        ja: ["ソウルの森", "城東区", "都心の中で豊かな緑と散策を楽しめる大型公園。"],
+        zh: ["首尔林", "城东区", "在都市中心享受森林漫步的大型生态公园。"],
+        ar: ["غابة سيول", "حي سيونغدونغ", "حديقة حضرية واسعة للتنزه وسط الطبيعة."],
+        tl: ["Kagubatan ng Seoul", "Seongdong-gu", "Malawak na parke sa gitna ng lungsod."],
+        it: ["Foresta di Seul", "Seongdong-gu", "Grande parco urbano immerso nel verde."]
+      },
+      8: {
+        en: ["Hongdae", "Mapo-gu", "Youth culture and street performances."],
+        ko: ["홍대", "마포구", "버스킹과 인디 문화가 살아 숨 쉬는 젊음의 거리."],
+        fr: ["Hongdae", "Mapo-gu", "Quartier étudiant vibrant célèbre pour ses spectacles de rue."],
+        de: ["Hongdae", "Mapo-gu", "Lebendiges Jugend- und Kulturviertel mit Straßenmusik."],
+        es: ["Hongdae", "Mapo-gu", "Barrio juvenil famoso por su música y arte callejero."],
+        ja: ["弘大", "麻浦区", "路上ライブやインディーズ文化が息づく若者の街。"],
+        zh: ["弘大", "麻浦区", "充满街头表演与独立文化的青春潮流街区。"],
+        ar: ["هونغداي", "حي مابو", "حي الثقافة الشبابية والعروض الموسيقية في الشوارع."],
+        tl: ["Hongdae", "Mapo-gu", "Sentro ng kultura ng kabataan at pagtatanghal sa kalye."],
+        it: ["Hongdae", "Mapo-gu", "Quartiere giovanile celebre per gli spettacoli di strada."]
+      },
+      9: {
+        en: ["Ikseon-dong", "Jongno-gu", "Hanok alley with cafes."],
+        ko: ["익선동", "종로구", "개조 한옥 카페와 레스토랑이 어우러진 감성 골목."],
+        fr: ["Ikseon-dong", "Jongno-gu", "Ruelles de maisons hanok rénovées abritant des cafés."],
+        de: ["Ikseon-dong", "Jongno-gu", "Verwinkelte Hanok-Gassen mit gemütlichen Cafés."],
+        es: ["Ikseon-dong", "Jongno-gu", "Callejones de casas hanok renovadas con cafés con encanto."],
+        ja: ["益善洞", "鍾路区", "リノベーション韓屋カフェが並ぶレトロな路地裏。"],
+        zh: ["益善洞", "钟路区", "传统韩屋改造咖啡馆与餐厅交织的复古小巷。"],
+        ar: ["إيكسون دونغ", "حي جونغنو", "أزقة منازل هانوك مجددة تضم مقاهي دافئة."],
+        tl: ["Ikseon-dong", "Jongno-gu", "Eskinita ng mga hanok na ginawang maaliwalas na kapihan."],
+        it: ["Ikseon-dong", "Jongno-gu", "Vicoli di case hanok ristrutturate con caffè caratteristici."]
+      },
+      10: {
+        en: ["Mullae Art Village", "Yeongdeungpo-gu", "Metalwork shops mixed with art studios."],
+        ko: ["문래창작촌", "영등포구", "오래된 철공소 골목과 예술가 작업실이 공존하는 공간."],
+        fr: ["Village artistique de Mullae", "Yeongdeungpo-gu", "Ateliers métallurgiques côtoyant des studios d'artistes."],
+        de: ["Künstlerdorf Mullae", "Yeongdeungpo-gu", "Metallwerkstätten vereint mit kreativen Kunstateliers."],
+        es: ["Aldea Artística de Mullae", "Yeongdeungpo-gu", "Talleres metalúrgicos mezclados con estudios de arte."],
+        ja: ["文来創作村", "永登浦区", "町工場の路地とアーティストのアトリエが共存する街。"],
+        zh: ["文来创作村", "永登浦区", "老铁工厂小巷与艺术家工作室共生的创意街区。"],
+        ar: ["قرية مولاي الفنية", "حي يونغديونغبو", "ورش الحدادة التقليدية ممزوجة باستوديوهات الفنانين."],
+        tl: ["Nayon ng Sining ng Mullae", "Yeongdeungpo-gu", "Mga pagawaan ng bakal na may mga studio ng sining."],
+        it: ["Villaggio Artistico di Mullae", "Yeongdeungpo-gu", "Officine metallurgiche intrecciate a studi d'arte."]
+      },
+      11: {
+        en: ["Gilsangsa Temple", "Seongbuk-gu", "Quiet temple in a city valley."],
+        ko: ["길상사", "성북구", "성북동 숲길 자락에 고요히 자리 잡은 도심 사찰."],
+        fr: ["Temple Gilsangsa", "Seongbuk-gu", "Temple paisible niché dans une vallée boisée de la ville."],
+        de: ["Gilsangsa-Tempel", "Seongbuk-gu", "Ruhiger Tempel in einem bewaldeten Tal der Stadt."],
+        es: ["Templo Gilsangsa", "Seongbuk-gu", "Templo silencioso escondido en un valle boscoso."],
+        ja: ["吉祥寺", "城北区", "城北洞の森の谷間に静かに佇む癒やしの寺院。"],
+        zh: ["吉祥寺", "城北区", "静谧隐于城市山谷林间的清幽古刹。"],
+        ar: ["معبد غيلسانغسا", "حي سيونغبوك", "معبد هادئ يختبئ في وادٍ مشجر داخل المدينة."],
+        tl: ["Templo ng Gilsangsa", "Seongbuk-gu", "Tahimik na templo sa lambak ng lungsod."],
+        it: ["Tempio Gilsangsa", "Seongbuk-gu", "Tempio silenzioso immerso in una valle boscosa."]
+      },
+      12: {
+        en: ["Haebangchon", "Yongsan-gu", "Hillside neighborhood with local shops."],
+        ko: ["해방촌", "용산구", "남산 아래 언덕길에 개성 있는 로컬 상점이 모인 마을."],
+        fr: ["Haebangchon", "Yongsan-gu", "Quartier à flanc de colline aux boutiques locales indépendantes."],
+        de: ["Haebangchon", "Yongsan-gu", "Hügelviertel unterhalb des Namsan mit lokalen Läden."],
+        es: ["Haebangchon", "Yongsan-gu", "Barrio en la ladera con tiendas locales y vistas a Namsan."],
+        ja: ["解放村", "龍山区", "南山の麓の坂道に個性豊かなローカル店が集まる街。"],
+        zh: ["解放村", "龙山区", "南山脚下山坡上充满独立小店的文艺社区。"],
+        ar: ["هايبانغتشون", "حي يونغسان", "حي على سفح التل يضم متاجر محلية مستقلة."],
+        tl: ["Haebangchon", "Yongsan-gu", "Pamayanan sa gilid ng burol na may mga lokal na tindahan."],
+        it: ["Haebangchon", "Yongsan-gu", "Quartiere collinare ricco di botteghe locali indipendenti."]
+      },
+      13: {
+        en: ["Mangwon Market", "Mapo-gu", "Local market loved by residents."],
+        ko: ["망원시장", "마포구", "현지 주민들이 즐겨 찾는 정겹고 활기찬 로컬 시장."],
+        fr: ["Marché de Mangwon", "Mapo-gu", "Marché traditionnel authentique apprécié des habitants."],
+        de: ["Mangwon-Markt", "Mapo-gu", "Authentischer Nachbarschaftsmarkt voller lokaler Spezialitäten."],
+        es: ["Mercado de Mangwon", "Mapo-gu", "Mercado local tradicional muy querido por los vecinos."],
+        ja: ["望遠市場", "麻浦区", "地元の人々に愛される温かみのある在来市場。"],
+        zh: ["望远市场", "麻浦区", "深受当地居民喜爱的地道传统美食市场。"],
+        ar: ["سوق مانغوون", "حي مابو", "سوق محلي تقليدي يحبه سكان الحي."],
+        tl: ["Pamilihan ng Mangwon", "Mapo-gu", "Lokal na pamilihang paborito ng mga residente."],
+        it: ["Mercato di Mangwon", "Mapo-gu", "Mercato rionale autentico amato dai residenti."]
+      },
+      14: {
+        en: ["Seochon", "Jongno-gu", "Quiet alleys next to Gyeongbokgung."],
+        ko: ["서촌", "종로구", "경복궁 서쪽에 자리한 한적하고 예술적인 골목길."],
+        fr: ["Seochon", "Jongno-gu", "Ruelles calmes et artistiques à l'ouest de Gyeongbokgung."],
+        de: ["Seochon", "Jongno-gu", "Ruhige, künstlerische Gassen westlich des Gyeongbokgung."],
+        es: ["Seochon", "Jongno-gu", "Callejones tranquilos y artísticos junto a Gyeongbokgung."],
+        ja: ["西村", "鍾路区", "景福宮の西側に広がる静かで芸術的な路地エリア。"],
+        zh: ["西村", "钟路区", "景福宫西侧宁静且充满艺术气息的传统小巷。"],
+        ar: ["سيوتشون", "حي جونغنو", "أزقة هادئة وفنية تقع غرب قصر غيونغبوكغونغ."],
+        tl: ["Seochon", "Jongno-gu", "Tahimik na mga eskinita sa tabi ng Gyeongbokgung."],
+        it: ["Seochon", "Jongno-gu", "Vicoli silenziosi e artistici accanto a Gyeongbokgung."]
+      },
+      15: {
+        en: ["Yeonnam Gyeongui Line Forest Park", "Mapo-gu", "Linear park built on old rail tracks."],
+        ko: ["연남동 경의선숲길", "마포구", "옛 철길을 따라 길게 조성된 도심 속 산책 공원."],
+        fr: ["Parc linéaire de Yeonnam", "Mapo-gu", "Promenade verdoyante aménagée sur d'anciennes voies ferrées."],
+        de: ["Yeonnam-Waldpark", "Mapo-gu", "Grüner Linienpark entlang ehemaliger Bahngleise."],
+        es: ["Parque Lineal de Yeonnam", "Mapo-gu", "Parque lineal construido sobre antiguas vías de tren."],
+        ja: ["延南洞京義線スッキル公園", "麻浦区", "廃線跡に沿って整備された緑豊かな散策公園。"],
+        zh: ["延南洞京义线林荫道", "麻浦区", "沿废弃铁路改造而成的城市线性森林公园。"],
+        ar: ["منتزه غابة خط يونام", "حي مابو", "منتزه طولي أخضر أقيم على مسار سكة حديد قديمة."],
+        tl: ["Liwasang Gubat ng Yeonnam", "Mapo-gu", "Mahabang parke na itinayo sa dating riles ng tren."],
+        it: ["Parco Lineare di Yeonnam", "Mapo-gu", "Parco lineare realizzato lungo vecchi binari ferroviari."]
+      }
+    };
+
+    // -----------------------------------------------------------------------
+    // 3. ALL 13 TRANSIT STATIONS / BUS STOPS IN ALL 10 LANGUAGES
+    // -----------------------------------------------------------------------
+    const TRANSIT_BASE = [
+      { id: 1, kind: "subway", line: "3호선", lat: 37.5759, lon: 126.9735 },
+      { id: 2, kind: "subway", line: "3호선", lat: 37.5766, lon: 126.9854 },
+      { id: 3, kind: "subway", line: "4호선", lat: 37.5609, lon: 126.9863 },
+      { id: 4, kind: "subway", line: "2호선", lat: 37.5446, lon: 127.0560 },
+      { id: 5, kind: "subway", line: "수인분당선", lat: 37.5436, lon: 127.0446 },
+      { id: 6, kind: "subway", line: "2호선", lat: 37.5568, lon: 126.9245 },
+      { id: 7, kind: "subway", line: "4호선", lat: 37.5225, lon: 126.9739 },
+      { id: 8, kind: "subway", line: "1호선", lat: 37.5714, lon: 126.9916 },
+      { id: 9, kind: "subway", line: "2호선", lat: 37.5180, lon: 126.8947 },
+      { id: 10, kind: "subway", line: "4호선", lat: 37.5885, lon: 127.0066 },
+      { id: 11, kind: "subway", line: "6호선", lat: 37.5346, lon: 126.9876 },
+      { id: 12, kind: "subway", line: "6호선", lat: 37.5558, lon: 126.9101 },
+      { id: 13, kind: "bus", line: "간선/지선", lat: 37.5605, lon: 126.9262 }
+    ];
+
+    const TRANSIT_L10N = {
+      1: { en: "Gyeongbokgung Stn.", ko: "경복궁역", fr: "Station Gyeongbokgung", de: "Bhf. Gyeongbokgung", es: "Est. Gyeongbokgung", ja: "景福宮駅", zh: "景福宫站", ar: "محطة غيونغبوكغونغ", tl: "Estasyon ng Gyeongbokgung", it: "Stazione Gyeongbokgung" },
+      2: { en: "Anguk Stn.", ko: "안국역", fr: "Station Anguk", de: "Bhf. Anguk", es: "Est. Anguk", ja: "安国駅", zh: "安国站", ar: "محطة أنغوك", tl: "Estasyon ng Anguk", it: "Stazione Anguk" },
+      3: { en: "Myeongdong Stn.", ko: "명동역", fr: "Station Myeongdong", de: "Bhf. Myeongdong", es: "Est. Myeongdong", ja: "明洞駅", zh: "明洞站", ar: "محطة ميونغ دونغ", tl: "Estasyon ng Myeongdong", it: "Stazione Myeongdong" },
+      4: { en: "Seongsu Stn.", ko: "성수역", fr: "Station Seongsu", de: "Bhf. Seongsu", es: "Est. Seongsu", ja: "聖水駅", zh: "圣水站", ar: "محطة سيونغسو", tl: "Estasyon ng Seongsu", it: "Stazione Seongsu" },
+      5: { en: "Seoul Forest Stn.", ko: "서울숲역", fr: "Station Forêt de Séoul", de: "Bhf. Seoul-Wald", es: "Est. Bosque de Seúl", ja: "ソウルの森駅", zh: "首尔林站", ar: "محطة غابة سيول", tl: "Estasyon ng Kagubatan ng Seoul", it: "Stazione Foresta di Seul" },
+      6: { en: "Hongik Univ. Stn.", ko: "홍대입구역", fr: "Station Univ. Hongik", de: "Bhf. Hongik-Univ.", es: "Est. Univ. Hongik", ja: "弘大入口駅", zh: "弘大入口站", ar: "محطة جامعة هونغيك", tl: "Estasyon ng Hongik Univ.", it: "Stazione Univ. Hongik" },
+      7: { en: "Ichon Stn.", ko: "이촌역", fr: "Station Ichon", de: "Bhf. Ichon", es: "Est. Ichon", ja: "二村駅", zh: "二村站", ar: "محطة إيتشون", tl: "Estasyon ng Ichon", it: "Stazione Ichon" },
+      8: { en: "Jongno 3-ga Stn.", ko: "종로3가역", fr: "Station Jongno 3-ga", de: "Bhf. Jongno 3-ga", es: "Est. Jongno 3-ga", ja: "鍾路3街駅", zh: "钟路3街站", ar: "محطة جونغنو 3-غا", tl: "Estasyon ng Jongno 3-ga", it: "Stazione Jongno 3-ga" },
+      9: { en: "Mullae Stn.", ko: "문래역", fr: "Station Mullae", de: "Bhf. Mullae", es: "Est. Mullae", ja: "文来駅", zh: "文来站", ar: "محطة مولاي", tl: "Estasyon ng Mullae", it: "Stazione Mullae" },
+      10: { en: "Hansung Univ. Stn.", ko: "한성대입구역", fr: "Station Univ. Hansung", de: "Bhf. Hansung-Univ.", es: "Est. Univ. Hansung", ja: "漢城大入口駅", zh: "汉城大入口站", ar: "محطة جامعة هانسونغ", tl: "Estasyon ng Hansung Univ.", it: "Stazione Univ. Hansung" },
+      11: { en: "Noksapyeong Stn.", ko: "녹사평역", fr: "Station Noksapyeong", de: "Bhf. Noksapyeong", es: "Est. Noksapyeong", ja: "緑莎坪駅", zh: "绿莎坪站", ar: "محطة نوكسابيونغ", tl: "Estasyon ng Noksapyeong", it: "Stazione Noksapyeong" },
+      12: { en: "Mangwon Stn.", ko: "망원역", fr: "Station Mangwon", de: "Bhf. Mangwon", es: "Est. Mangwon", ja: "望遠駅", zh: "望远站", ar: "محطة مانغوون", tl: "Estasyon ng Mangwon", it: "Stazione Mangwon" },
+      13: { en: "Yeonnam Entrance Bus Stop", ko: "연남동입구 정류장", fr: "Arrêt Entrée Yeonnam", de: "Haltestelle Yeonnam-Eingang", es: "Parada Entrada Yeonnam", ja: "延南洞入口バス停", zh: "延南洞入口公交站", ar: "موقف مدخل يونام", tl: "Hintuan ng Yeonnam", it: "Fermata Ingresso Yeonnam" }
+    };
+
+    // -----------------------------------------------------------------------
+    // 4. ALL 8 QUIZ QUESTIONS & CHOICES IN ALL 10 LANGUAGES
+    // -----------------------------------------------------------------------
+    const QUESTIONS_DATA = [
+      {
+        id: 1, axis: "lively", scores: { A: 1, B: -1 },
+        l10n: {
+          en: ["Which sounds better for a trip?", "A lively market full of people", "A quiet walk through alleys"],
+          ko: ["여행에서 더 끌리는 건?", "북적이는 시장 구경", "조용한 골목 산책"],
+          fr: ["Qu'est-ce qui vous attire le plus en voyage ?", "Un marché animé plein de vie", "Une promenade calme dans les ruelles"],
+          de: ["Was klingt auf Reisen verlockender?", "Ein lebhafter Markt voller Menschen", "Ein ruhiger Spaziergang durch Gassen"],
+          es: ["¿Qué te atrae más en un viaje?", "Un mercado animado lleno de gente", "Un paseo tranquilo por callejones"],
+          ja: ["旅先でより惹かれるのは？", "活気あふれる賑やかな市場巡り", "静かな路地裏のんびり散策"],
+          zh: ["旅行中哪一种更吸引你？", "人声鼎沸的热闹市集", "静谧惬意的小巷漫步"],
+          ar: ["ما الذي يبدو أجمل في رحلتك؟", "سوق حيوي مليء بالناس", "نزهة هادئة في الأزقة"],
+          tl: ["Alin ang mas gusto mo sa biyahe?", "Masiglang pamilihan na puno ng tao", "Tahimik na paglalakad sa mga eskinita"],
+          it: ["Cosa ti attira di più in viaggio?", "Un mercato vivace pieno di gente", "Una passeggiata tranquilla nei vicoli"]
+        }
+      },
+      {
+        id: 2, axis: "lively", scores: { A: 1, B: -1 },
+        l10n: {
+          en: ["Which cafe do you pick?", "A famous cafe with a long line", "A calm neighborhood cafe"],
+          ko: ["카페를 고른다면?", "줄 서는 유명 카페", "한적한 동네 카페"],
+          fr: ["Quel café choisissez-vous ?", "Un café célèbre avec une file d'attente", "Un café paisible de quartier"],
+          de: ["Welches Café wählst du?", "Ein berühmtes Café mit langer Schlange", "Ein ruhiges Nachbarschaftscafé"],
+          es: ["¿Qué cafetería eliges?", "Una cafetería famosa con fila", "Una cafetería tranquila de barrio"],
+          ja: ["カフェを選ぶなら？", "行列ができる有名カフェ", "落ち着いた地元の隠れ家カフェ"],
+          zh: ["选择咖啡馆时你会去哪家？", "排长队的网红名店", "安静舒适的社区小咖啡馆"],
+          ar: ["أي مقهى تختار؟", "مقهى شهير أمامه طابور طويل", "مقهى هادئ في الحي"],
+          tl: ["Aling kapihan ang pipiliin mo?", "Sikat na kapihan na may mahabang pila", "Tahimik na kapihan sa pamayanan"],
+          it: ["Quale caffetteria scegli?", "Un locale famoso con lunga fila", "Un caffè tranquillo di quartiere"]
+        }
+      },
+      {
+        id: 3, axis: "lively", scores: { A: 1, B: -1 },
+        l10n: {
+          en: ["How do you plan a day?", "See as many places as possible", "Stay long at one or two places"],
+          ko: ["하루 일정은?", "최대한 많이 돌아보기", "한두 곳을 천천히"],
+          fr: ["Comment organisez-vous votre journée ?", "Voir un maximum d'endroits", "Prendre son temps dans un ou deux lieux"],
+          de: ["Wie planst du deinen Tag?", "So viele Orte wie möglich sehen", "Lange an ein oder zwei Orten verweilen"],
+          es: ["¿Cómo planeas tu día?", "Visitar tantos lugares como sea posible", "Quedarte con calma en uno o dos sitios"],
+          ja: ["1日のスケジュールは？", "できるだけ多くのスポットを巡る", "1〜2ヶ所でゆっくり過ごす"],
+          zh: ["你如何规划一天的行程？", "尽可能多打卡几个景点", "在一两个地方慢慢停留"],
+          ar: ["كيف تخطط ليومك؟", "زيارة أكبر عدد ممكن من الأماكن", "البقاء طويلاً في مكان أو اثنين"],
+          tl: ["Paano mo pinaplano ang iyong araw?", "Pumunta sa pinakamaraming lugar", "Magtagal nang tahimik sa isa o dalawang lugar"],
+          it: ["Come organizzi la giornata?", "Vedere più posti possibili", "Soffermarsi a lungo in uno o due luoghi"]
+        }
+      },
+      {
+        id: 4, axis: "city", scores: { A: -1, B: 1 },
+        l10n: {
+          en: ["Where do you want to go?", "Park or walking trail", "Busy streets and shops"],
+          ko: ["어디에 가고 싶나요?", "공원·산책로", "번화가·쇼핑가"],
+          fr: ["Où avez-vous envie d'aller ?", "Un parc ou un sentier de promenade", "Des rues animées et des boutiques"],
+          de: ["Wohin möchtest du gehen?", "Park oder Wanderweg", "Belebte Straßen und Geschäfte"],
+          es: ["¿Adónde quieres ir?", "Parque o sendero para caminar", "Calles concurridas y tiendas"],
+          ja: ["どこへ行きたいですか？", "公園や緑の散策路", "賑やかな繁華街やショッピング街"],
+          zh: ["你更想去哪里？", "公园或林间步道", "繁华商业街与购物区"],
+          ar: ["إلى أين تريد الذهاب؟", "حديقة أو مسار للمشي", "شوارع مزدحمة ومتاجر"],
+          tl: ["Saan mo gustong pumunta?", "Parke o lakaran sa kalikasan", "Mataong kalye at mga tindahan"],
+          it: ["Dove preferisci andare?", "Parco o sentiero nel verde", "Strade vivaci e negozi"]
+        }
+      },
+      {
+        id: 5, axis: "city", scores: { A: -1, B: 1 },
+        l10n: {
+          en: ["Which view do you prefer?", "Mountains and river", "Skyscrapers at night"],
+          ko: ["어떤 풍경이 좋나요?", "산과 강", "빌딩 야경"],
+          fr: ["Quelle vue préférez-vous ?", "Les montagnes et la rivière", "Les gratte-ciel illuminés la nuit"],
+          de: ["Welche Aussicht bevorzugst du?", "Berge und Fluss", "Wolkenkratzer bei Nacht"],
+          es: ["¿Qué paisaje prefieres?", "Montañas y río", "Rascacielos iluminados de noche"],
+          ja: ["どちらの景色が好きですか？", "山や川の自然な風景", "高層ビル群のきらめく夜景"],
+          zh: ["你更喜欢哪种风景？", "青山与江河", "璀璨的都市摩天大楼夜景"],
+          ar: ["أي منظر تفضل؟", "الجبال والنهر", "ناطحات السحاب ليلاً"],
+          tl: ["Aling tanawin ang mas gusto mo?", "Mga bundok at ilog", "Mga gusali sa gabi"],
+        it: ["Quale panorama preferisci?", "Montagne e fiume", "Grattacieli illuminati di notte"]
+        }
+      },
+      {
+        id: 6, axis: "city", scores: { A: -1, B: 1 },
+        l10n: {
+          en: ["Where do you have lunch?", "A picnic outside", "A restaurant street"],
+          ko: ["점심은 어디에서?", "야외 피크닉", "맛집 거리"],
+          fr: ["Où prenez-vous votre déjeuner ?", "Un pique-nique en plein air", "Une rue pleine de restaurants"],
+          de: ["Wo isst du zu Mittag?", "Ein Picknick im Freien", "Eine lebhafte Restaurantstraße"],
+          es: ["¿Dónde prefieres almorzar?", "Un pícnic al aire libre", "Una calle llena de restaurantes"],
+          ja: ["ランチはどこで食べたい？", "開放的な屋外ピクニック", "グルメ店が並ぶ活気ある通り"],
+          zh: ["午餐想在哪里吃？", "户外草地野餐", "热闹的美食一条街"],
+          ar: ["أين تتناول الغداء؟", "نزهة في الهواء الطلق", "شارع مليء بالمطاعم"],
+          tl: ["Saan ka manananghalian?", "Piknik sa labas", "Kalye ng mga kainan"],
+          it: ["Dove preferisci pranzare?", "Un picnic all'aperto", "Una via piena di ristoranti"]
+        }
+      },
+      {
+        id: 7, axis: "trend", scores: { A: -1, B: 1 },
+        l10n: {
+          en: ["What interests you more?", "Palaces, hanok, museums", "Exhibitions, pop-ups, design shops"],
+          ko: ["더 흥미로운 것은?", "궁·한옥·박물관", "전시·팝업·디자인숍"],
+          fr: ["Qu'est-ce qui vous intéresse le plus ?", "Palais, hanok et musées", "Expositions, pop-ups et boutiques design"],
+          de: ["Was interessiert dich mehr?", "Paläste, Hanok und Museen", "Ausstellungen, Pop-ups und Designshops"],
+          es: ["¿Qué te interesa más?", "Palacios, hanok y museos", "Exposiciones, pop-ups y tiendas de diseño"],
+          ja: ["より興味があるのは？", "古宮・韓屋・博物館", "展示会・ポップアップ・デザインショップ"],
+          zh: ["你对哪一类更感兴趣？", "古宫、韩屋与博物馆", "艺术展、快闪店与设计买手店"],
+          ar: ["ما الذي يثير اهتمامك أكثر؟", "القصور والهانوك والمتاحف", "المعارض والمتاجر المؤقتة والتصميم"],
+          tl: ["Ano ang mas nakakaakit sa iyo?", "Mga palasyo, hanok, at museo", "Mga eksibisyon, pop-up, at design shop"],
+          it: ["Cosa ti interessa di più?", "Palazzi, hanok e musei", "Mostre, pop-up e negozi di design"]
+        }
+      },
+      {
+        id: 8, axis: "trend", scores: { A: -1, B: 1 },
+        l10n: {
+          en: ["Which souvenir do you buy?", "Traditional crafts", "Trendy brand goods"],
+          ko: ["기념품은?", "전통 공예품", "요즘 브랜드 굿즈"],
+          fr: ["Quel souvenir achetez-vous ?", "De l'artisanat traditionnel", "Des articles de marques tendance"],
+          de: ["Welches Souvenir kaufst du?", "Traditionelles Kunsthandwerk", "Trendige Markenartikel"],
+          es: ["¿Qué recuerdo compras?", "Artesanía tradicional", "Artículos de marcas de moda"],
+          ja: ["お土産を買うなら？", "伝統工芸品", "最新トレンドブランドのグッズ"],
+          zh: ["你会买哪种纪念品？", "传统手工艺品", "潮流品牌限定周边"],
+          ar: ["أي تذكار تشتري؟", "حرف يدوية تقليدية", "منتجات علامات تجارية عصرية"],
+          tl: ["Anong pasalubong ang bibilhin mo?", "Tradisyonal na likhang-kamay", "Mga usong produkto ng brand"],
+          it: ["Quale souvenir acquisti?", "Artigianato tradizionale", "Articoli di brand di tendenza"]
+        }
+      }
+    ];
+
+    // -----------------------------------------------------------------------
+    // 5. ALL 8 PERSONALITY TYPES IN ALL 10 LANGUAGES
+    // -----------------------------------------------------------------------
+    const TYPES_L10N = {
+      LCT: {
+        en: ["City Trend Chaser", "You thrive on urban energy, pop-ups, and vibrant city streets."],
+        ko: ["활기찬 도심 트렌드 탐험가", "활기찬 도시 에너지와 팝업, 트렌디한 거리를 즐기는 여행자입니다."],
+        fr: ["Explorateur Urbain Tendance", "Vous adorez l'énergie urbaine, les pop-ups et les rues animées."],
+        de: ["Urbaner Trend-Entdecker", "Du liebst urbane Energie, Pop-ups und lebendige Stadtviertel."],
+        es: ["Explorador Urbano de Tendencias", "Disfrutas de la energía urbana, las tiendas pop-up y calles vibrantes."],
+        ja: ["アクティブ都市トレンド派", "都会のエネルギーや最新ポップアップ、活気ある街歩きを楽しむ旅人です。"],
+        zh: ["活力都市潮流探索家", "热爱都市活力、潮流快闪与充满生机的时尚街区。"],
+        ar: ["مستكشف صيحات المدينة الحيوي", "تستمتع بطاقة المدينة والمتاجر العصرية والشوارع النابضة بالحياة."],
+        tl: ["Masiglang Manlalakbay sa Uso ng Lungsod", "Mahilig ka sa sigla ng lungsod, mga pop-up, at makukulay na kalye."],
+        it: ["Esploratore Urbano di Tendenze", "Ami l'energia della città, i pop-up store e le strade vivaci."]
+      },
+      LCH: {
+        en: ["Lively Heritage Walker", "You love exploring iconic cultural landmarks right in the heart of the city."],
+        ko: ["활기찬 도심 역사 여행자", "도심 한복판의 역사와 살아있는 문화 현장을 누비는 여행자입니다."],
+        fr: ["Marcheur Culturel Dynamique", "Vous aimez explorer les monuments historiques au cœur de la ville."],
+        de: ["Lebhafter Kultur-Entdecker", "Du erkundest gerne historische Wahrzeichen mitten im Stadtleben."],
+        es: ["Caminante Cultural Dinámico", "Te encanta explorar monumentos históricos en el corazón de la ciudad."],
+        ja: ["アクティブ都市歴史ウォーカー", "都心の歴史的建造物や活気ある文化スポットを巡るのが得意な旅人です。"],
+        zh: ["活力都市历史漫步者", "喜欢在繁华都市中心探访历史地标与鲜活文化现场。"],
+        ar: ["رحالة التراث الحضري الحيوي", "تحب استكشاف المعالم التاريخية العريقة في قلب المدينة النابض."],
+        tl: ["Masiglang Tagalakad ng Kasaysayan", "Mahilig kang tumuklas ng mga makasaysayang pook sa gitna ng lungsod."],
+        it: ["Camminatore Culturale Dinamico", "Ami esplorare i monumenti storici nel cuore pulsante della città."]
+      },
+      LNT: {
+        en: ["Active Nature Seeker", "You enjoy dynamic outdoor trails paired with fresh local cafes."],
+        ko: ["활동적인 자연 트렌드 여행자", "탁 트인 자연 산책로와 감각적인 로컬 공간을 함께 즐깁니다."],
+        fr: ["Explorateur Nature & Tendance", "Vous appréciez les sentiers en plein air associés à des cafés créatifs."],
+        de: ["Aktiver Natur-Trendsetter", "Du verbindest dynamische Naturpfade mit modernen lokalen Cafés."],
+        es: ["Buscador Activo de Naturaleza", "Disfrutas de senderos al aire libre combinados con cafés modernos."],
+        ja: ["アクティブ自然トレンド派", "開放的な自然散策路とセンスあふれるローカルカフェの両方を楽しめます。"],
+        zh: ["活力自然潮流探索者", "喜欢将户外自然步道与富有设计感的本地咖啡馆结合。"],
+        ar: ["باحث الطبيعة والعصرية النشط", "تستمتع بالمسارات الطبيعية المفتوحة مع المقاهي المحلية المبتكرة."],
+        tl: ["Aktibong Tagahanap ng Kalikasan", "Nasisiyahan ka sa mga lakaran sa kalikasan at mga makabagong kapihan."],
+        it: ["Esploratore Attivo della Natura", "Ami i sentieri all'aperto abbinati a caffetterie creative."]
+      },
+      LNH: {
+        en: ["Outdoor Culture Lover", "You seek scenic landscapes rich with traditional heritage."],
+        ko: ["활기찬 자연 문화 여행자", "아름다운 자연 풍경 속에서 전통의 숨결을 찾는 여행자입니다."],
+        fr: ["Amoureux de Nature et Patrimoine", "Vous recherchez des paysages naturels riches en patrimoine traditionnel."],
+        de: ["Aktiver Natur- & Kulturfreund", "Du suchst malerische Landschaften voller traditioneller Geschichte."],
+        es: ["Amante de la Naturaleza y Cultura", "Buscas paisajes escénicos llenos de herencia tradicional."],
+        ja: ["アクティブ自然・伝統派", "美しい自然の風景の中で伝統文化の息吹を感じる旅を好みます。"],
+        zh: ["活力自然文化爱好者", "喜欢在优美的自然风光中感受深厚的传统文化底蕴。"],
+        ar: ["محب الطبيعة والتراث النشط", "تبحث عن المناظر الطبيعية الخلابة الغنية بالتراث التقليدي."],
+        tl: ["Tagahanga ng Kalikasan at Kultura", "Naghahanap ka ng magagandang tanawin na mayaman sa tradisyon."],
+        it: ["Amante di Natura e Patrimonio", "Cerchi paesaggi suggestivi ricchi di tradizione storica."]
+      },
+      QCT: {
+        en: ["Calm City Curator", "You seek serene alleyways, indie studios, and hidden neighborhood gems."],
+        ko: ["조용한 도심 감성 여행자", "조용한 골목의 독립 공방과 숨은 감성 공간을 발견하는 여행자입니다."],
+        fr: ["Curateur Urbain Paisible", "Vous recherchez des ruelles sereines, des ateliers indépendants et des trésors cachés."],
+        de: ["Ruhiger Stadt-Kurator", "Du suchst stille Gassen, unabhängige Ateliers und versteckte Viertel."],
+        es: ["Curador Urbano Tranquilo", "Buscas callejones serenos, estudios independientes y joyas ocultas."],
+        ja: ["静かな都市アート派", "静かな路地裏の独立系アトリエや隠れた感性スポットを見つける達人です。"],
+        zh: ["静谧都市美学策展人", "偏爱安静小巷中的独立工作室与鲜为人知的文艺角落。"],
+        ar: ["منسق المدينة الهادئ", "تبحث عن الأزقة الهادئة والاستوديوهات المستقلة والكنوز المخفية."],
+        tl: ["Tahimik na Tagatuklas ng Lungsod", "Hinahanap mo ang mga tahimik na eskinita at tagong sining sa pamayanan."],
+        it: ["Curatore Urbano Tranquillo", "Cerchi vicoli sereni, studi indipendenti e gemme nascoste di quartiere."]
+      },
+      QCH: {
+        en: ["Quiet History Walker", "You appreciate peaceful strolls through historic lanes away from the crowds."],
+        ko: ["조용한 도심 역사 여행자", "인파를 벗어나 고즈넉한 역사의 골목을 천천히 음미합니다."],
+        fr: ["Promeneur Historique Paisible", "Vous appréciez les balades calmes dans les ruelles historiques loin de la foule."],
+        de: ["Stiller Geschichts-Wanderer", "Du genießt ruhige Spaziergänge durch historische Gassen abseits der Massen."],
+        es: ["Caminante Histórico Tranquilo", "Aprecias los paseos pacíficos por callejones históricos lejos de la multitud."],
+        ja: ["静かな歴史路地ウォーカー", "人混みを離れ、趣ある歴史的な路地をゆっくり味わう旅人です。"],
+        zh: ["静谧都市历史漫游者", "喜欢远离喧嚣，在古朴的历史小巷中慢慢品味岁月。"],
+        ar: ["متجول التاريخ الهادئ", "تقدر النزهات الهادئة عبر الأزقة التاريخية بعيداً عن الزحام."],
+        tl: ["Tahimik na Naglalakad sa Kasaysayan", "Pinahahalagahan mo ang payapang paglalakad sa mga makasaysayang eskinita."],
+        it: ["Camminatore Storico Silenzioso", "Apprezzi le passeggiate tranquille nei vicoli storici lontano dalla folla."]
+      },
+      QNT: {
+        en: ["Slow Nature Artist", "You recharge in tranquil green spaces with an eye for subtle design."],
+        ko: ["조용한 자연 감성 여행자", "고요한 숲길과 여유로운 공간에서 영감을 얻는 여행자입니다."],
+        fr: ["Artiste Nature & Sérénité", "Vous vous ressourcez dans des espaces verts paisibles avec un goût pour le design."],
+        de: ["Entspannter Natur-Künstler", "Du tankst Kraft im Grünen mit einem Blick für feines Design."],
+        es: ["Artista Sereno de la Naturaleza", "Recargas energías en espacios verdes tranquilos con gusto por el diseño."],
+        ja: ["スロー自然アート派", "穏やかな緑の空間と洗練されたデザインの中で心を整える旅人です。"],
+        zh: ["慢节奏自然美学家", "在宁静绿意与简约设计空间中放松身心、汲取灵感。"],
+        ar: ["فنان الطبيعة الهادئة", "تستعيد طاقتك في المساحات الخضراء الهادئة مع ذائقة فنية راقية."],
+        tl: ["Mahinahong Alagad ng Kalikasan", "Nagpapahinga ka sa payapang luntiang lugar na may pagpapahalaga sa sining."],
+        it: ["Artista Lento della Natura", "Ti ricarichi in spazi verdi tranquilli con un occhio per il design."]
+      },
+      QNH: {
+        en: ["Peaceful Heritage Hiker", "You gravitate toward quiet mountain temples and timeless tranquility."],
+        ko: ["조용한 자연 역사 여행자", "산자락의 고요한 사찰과 깊은 전통의 평온함을 사랑합니다."],
+        fr: ["Randonneur du Patrimoine Paisible", "Vous êtes attiré par les temples tranquilles en montagne et la sérénité."],
+        de: ["Friedlicher Kultur-Wanderer", "Dich ziehen stille Bergtempel und zeitlose Gelassenheit an."],
+        es: ["Senderista Sereno del Patrimonio", "Te atraen los templos silenciosos en la montaña y la calma atemporal."],
+        ja: ["静寂の自然・古刹派", "山裾の静かな寺院と時代を超えた穏やかな空気を愛する旅人です。"],
+        zh: ["静谧自然古迹行者", "向往山林间的清幽古刹与超越时光的宁静氛围。"],
+        ar: ["متنزه التراث الهادئ", "تنجذب نحو المعابد الجبلية الهادئة والسكينة الخالدة."],
+        tl: ["Payapang Manlalakbay sa Pamana", "Naaakit ka sa mga tahimik na templo sa bundok at walang kupas na kapayapaan."],
+        it: ["Escursionista Pacifico del Patrimonio", "Sei attratto dai templi silenziosi in montagna e dalla quiete senza tempo."]
+      }
+    };
+
+    const HIDDEN_COLLECTION_IDS = [10, 11, 12, 13, 14, 15];
+
+    // -----------------------------------------------------------------------
+    // 6. APPLICATION STATE & ACCESSORS
+    // -----------------------------------------------------------------------
+    const state = {
+      lang: "en",
+      langMenuOpen: false,
+      activeTab: "explore",
+      selectedCategory: "ALL",
+      selectedSpotId: null,
+      quizAnswers: {},
+      quizResult: null,
+      earnedBadges: new Set(),
+      collectionUnlocked: false,
+      verifyingStep: 0
+    };
+
+    function L() {
+      return I18N[state.lang] || I18N.en;
+    }
+
+    function getSpot(id) {
+      const base = SPOTS_BASE.find((s) => s.id === id);
+      if (!base) return null;
+      const loc = SPOTS_L10N[id][state.lang] || SPOTS_L10N[id].en;
+      return {
+        ...base,
+        name: loc[0],
+        district: loc[1],
+        desc: loc[2],
+        categoryLabel: L().categories[base.category]
+      };
+    }
+
+    function getAllSpots() {
+      return SPOTS_BASE.map((b) => getSpot(b.id));
+    }
+
+    function getTransit(id) {
+      const base = TRANSIT_BASE.find((t) => t.id === id);
+      if (!base) return null;
+      return {
+        ...base,
+        name: TRANSIT_L10N[id][state.lang] || TRANSIT_L10N[id].en,
+        lineLabel: L().lines[base.line] || base.line
+      };
+    }
+
+    // -----------------------------------------------------------------------
+    // 7. CORE ALGORITHMS (HAVERSINE, 3-TIER CROWD, F1, F3, F4)
+    // -----------------------------------------------------------------------
+    function haversineM(lat1, lon1, lat2, lon2) {
+      const r = 6371000.0;
+      const p1 = (lat1 * Math.PI) / 180;
+      const p2 = (lat2 * Math.PI) / 180;
+      const dphi = p2 - p1;
+      const dl = ((lon2 - lon1) * Math.PI) / 180;
+      const a = Math.sin(dphi / 2) ** 2 + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) ** 2;
+      return 2 * r * Math.asin(Math.sqrt(a));
+    }
+
+    function nearestTransit(spot, kind) {
+      let best = null;
+      for (const b of TRANSIT_BASE) {
+        if (b.kind !== kind) continue;
+        const d = haversineM(spot.lat, spot.lon, b.lat, b.lon);
+        if (!best || d < best.distance_m) {
+          best = { ...getTransit(b.id), distance_m: Math.round(d) };
+        }
+      }
+      return best && best.distance_m <= 1500 ? best : null;
+    }
+
+    function getCrowdTier(score) {
+      const c = L().crowd;
+      if (score < 0.3) {
+        return {
+          code: "quiet",
+          label: c.quiet,
+          pct: Math.round(score * 100),
+          pillClass: "bg-emerald-50 text-emerald-700 border-emerald-200",
+          dotClass: "bg-emerald-500",
+          barClass: "bg-emerald-500",
+          accentHex: "#10b981"
+        };
+      }
+      if (score < 0.6) {
+        return {
+          code: "normal",
+          label: c.normal,
+          pct: Math.round(score * 100),
+          pillClass: "bg-amber-50 text-amber-700 border-amber-200",
+          dotClass: "bg-amber-500",
+          barClass: "bg-amber-500",
+          accentHex: "#f59e0b"
+        };
+      }
+      return {
+        code: "crowded",
+        label: c.crowded,
+        pct: Math.round(score * 100),
+        pillClass: "bg-rose-50 text-rose-700 border-rose-200",
+        dotClass: "bg-rose-500",
+        barClass: "bg-rose-500",
+        accentHex: "#ef4444"
+      };
+    }
+
+    function ratioToTier(ratio) {
+      if (ratio >= 1.3) return getCrowdTier(0.95);
+      if (ratio <= 0.8) return getCrowdTier(0.15);
+      return getCrowdTier(0.40);
+    }
+
+    function getSpotForecast(spot) {
+      const currentCrowd = getCrowdTier(spot.crowd_score);
+      let todayTier = ratioToTier(spot.r7);
+      if (currentCrowd.code === "crowded") {
+        todayTier = getCrowdTier(0.95);
+      }
+      const tomorrowTier = ratioToTier(spot.r3);
+
+      const series = [];
+      const baseVal = 45;
+      for (let i = 0; i < 35; i++) {
+        const wave = Math.sin(i * 0.75 + spot.id) * 4.5 + Math.cos(i * 0.35) * 3;
+        if (i < 28) {
+          series.push(Math.max(15, baseVal + wave));
+        } else if (i < 32) {
+          series.push(Math.max(15, baseVal * spot.r7 + wave * 0.7));
+        } else {
+          series.push(Math.max(15, baseVal * spot.r3 + wave * 0.6));
+        }
+      }
+
+      return {
+        today: todayTier,
+        tomorrow: tomorrowTier,
+        r7: spot.r7,
+        r3: spot.r3,
+        series
+      };
+    }
+
+    function getAlternatives(spot, limit = 3) {
+      const all = getAllSpots();
+      const cands = all.filter(
+        (c) =>
+          c.category === spot.category &&
+          c.id !== spot.id &&
+          c.rank_100 > spot.rank_100 &&
+          c.crowd_score < 0.7
+      );
+
+      const scored = cands.map((c) => {
+        const km = haversineM(spot.lat, spot.lon, c.lat, c.lon) / 1000;
+        const total =
+          0.4 * (Math.min(c.rank_100, 100) / 100) +
+          0.4 * (1 - c.crowd_score) +
+          0.2 * (1 - Math.min(km, 20) / 20);
+        return { spot: c, km: Math.round(km * 10) / 10, total };
+      });
+
+      scored.sort((a, b) => b.total - a.total);
+      return scored.slice(0, limit);
+    }
+
+    function computePersonalityResult(answers) {
+      const byAxis = { lively: [], city: [], trend: [] };
+      for (const q of QUESTIONS_DATA) {
+        const val = answers[q.id] ?? -1;
+        byAxis[q.axis].push(val);
+      }
+      const avg = (arr) => arr.reduce((a, b) => a + b, 0) / arr.length;
+      const lively = avg(byAxis.lively);
+      const city = avg(byAxis.city);
+      const trend = avg(byAxis.trend);
+
+      const code =
+        (lively >= 0 ? "L" : "Q") +
+        (city >= 0 ? "C" : "N") +
+        (trend >= 0 ? "T" : "H");
+
+      const allSpots = getAllSpots();
+      const ranked = allSpots
+        .map((s) => {
+          const dist = Math.sqrt(
+            (lively - s.v_lively) ** 2 +
+            (city - s.v_city) ** 2 +
+            (trend - s.v_trend) ** 2
+          );
+          const sim = 1 - dist / (2 * Math.sqrt(3));
+          const total = 0.7 * sim + 0.3 * (1 - s.crowd_score) + (s.is_hidden ? 0.05 : 0);
+          return {
+            spot: s,
+            similarityPct: Math.round(sim * 100),
+            total
+          };
+        })
+        .sort((a, b) => b.total - a.total);
+
+      return {
+        code,
+        vec: { lively, city, trend },
+        recommendations: ranked.slice(0, 5)
+      };
+    }
+
+    // -----------------------------------------------------------------------
+    // 8. BESPOKE SVG ARTWORK GENERATOR
+    // -----------------------------------------------------------------------
+    function renderSpotIllustration(spot, sizeClass = "w-14 h-14") {
+      const palettes = {
+        "역사문화": { bg1: "#fef3c7", bg2: "#fde68a", stroke: "#b45309", fill: "#d97706", accent: "#92400e" },
+        "시장거리": { bg1: "#ffe4e6", bg2: "#fecdd3", stroke: "#be123c", fill: "#e11d48", accent: "#881337" },
+        "자연공원": { bg1: "#d1fae5", bg2: "#a7f3d0", stroke: "#047857", fill: "#10b981", accent: "#065f46" },
+        "예술트렌드": { bg1: "#e0e7ff", bg2: "#c7d2fe", stroke: "#4338ca", fill: "#6366f1", accent: "#312e81" }
+      };
+      const p = palettes[spot.category] || palettes["역사문화"];
+
+      let motif = "";
+      if (spot.category === "역사문화") {
+        motif = `
+          <path d="M10 27 Q32 17 54 27 L49 30 H15 Z" fill="${p.accent}"/>
+          <path d="M14 23 Q32 13 50 23" stroke="${p.stroke}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <rect x="19" y="30" width="4" height="15" rx="1" fill="${p.fill}"/>
+          <rect x="30" y="30" width="4" height="15" rx="1" fill="${p.fill}"/>
+          <rect x="41" y="30" width="4" height="15" rx="1" fill="${p.fill}"/>
+          <rect x="14" y="45" width="36" height="4" rx="2" fill="${p.accent}"/>
+        `;
+      } else if (spot.category === "시장거리") {
+        motif = `
+          <path d="M14 24 L20 16 H44 L50 24 Z" fill="${p.fill}"/>
+          <path d="M14 24 Q18.5 30 23 24 Q27.5 30 32 24 Q36.5 30 41 24 Q45.5 30 50 24" fill="${p.accent}"/>
+          <rect x="18" y="29" width="28" height="17" rx="3" fill="#ffffff" fill-opacity="0.85"/>
+          <circle cx="26" cy="37" r="3.5" fill="${p.fill}"/>
+          <circle cx="38" cy="37" r="3.5" fill="#f59e0b"/>
+        `;
+      } else if (spot.category === "자연공원") {
+        motif = `
+          <circle cx="44" cy="18" r="5" fill="#fbbf24"/>
+          <path d="M8 46 Q24 32 40 46 Z" fill="${p.fill}"/>
+          <path d="M24 46 Q40 28 56 46 Z" fill="${p.accent}"/>
+          <path d="M23 35 L28 22 L33 35 Z" fill="#064e3b"/>
+          <rect x="27" y="35" width="2" height="6" fill="#78350f"/>
+        `;
+      } else {
+        motif = `
+          <rect x="15" y="16" width="22" height="22" rx="6" fill="${p.fill}" fill-opacity="0.85"/>
+          <circle cx="40" cy="34" r="11" fill="#ec4899" fill-opacity="0.78"/>
+          <path d="M20 44 L44 20" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
+          <circle cx="24" cy="24" r="2.5" fill="#ffffff"/>
+        `;
+      }
+
+      return `
+        <div class="${sizeClass} rounded-2xl overflow-hidden shrink-0 shadow-xs border border-black/5 relative" style="background: linear-gradient(135deg, ${p.bg1}, ${p.bg2});">
+          <svg viewBox="0 0 64 64" class="w-full h-full">${motif}</svg>
+          ${spot.is_hidden ? `<span class="absolute bottom-1 end-1 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>` : ""}
+        </div>
+      `;
+    }
+
+    // -----------------------------------------------------------------------
+    // 9. LANGUAGE SWITCHING, RTL HANDLING, TOASTS & MODALS
+    // -----------------------------------------------------------------------
+    function setLanguage(langCode) {
+      if (!I18N[langCode]) return;
+      state.lang = langCode;
+      state.langMenuOpen = false;
+      document.getElementById("lang-dropdown").classList.add("hidden");
+
+      const langMeta = LANGUAGES.find((x) => x.code === langCode);
+      const screenEl = document.getElementById("iphone-screen");
+      screenEl.setAttribute("dir", langMeta ? langMeta.dir : "ltr");
+      document.documentElement.setAttribute("lang", langCode);
+
+      updateStaticChrome();
+      renderPresenterLanguageGrid();
+      renderApp();
+    }
+
+    function toggleLangMenu() {
+      state.langMenuOpen = !state.langMenuOpen;
+      const dd = document.getElementById("lang-dropdown");
+      if (state.langMenuOpen) {
+        dd.innerHTML = LANGUAGES.map(
+          (l) => `
+          <button
+            onclick="setLanguage('${l.code}')"
+            class="w-full px-3.5 py-2 text-start text-xs font-bold flex items-center justify-between hover:bg-slate-100 transition cursor-pointer ${
+              state.lang === l.code ? "bg-emerald-50 text-emerald-700" : "text-slate-700"
+            }"
+          >
+            <span class="flex items-center gap-2">
+              <span>${l.flag}</span>
+              <span>${l.native}</span>
+            </span>
+            ${state.lang === l.code ? `<span>✓</span>` : ""}
+          </button>
+        `
+        ).join("");
+        dd.classList.remove("hidden");
+      } else {
+        dd.classList.add("hidden");
+      }
+    }
+
+    // Close language dropdown when clicking outside
+    document.addEventListener("click", (e) => {
+      const btn = document.getElementById("lang-menu-btn");
+      const dd = document.getElementById("lang-dropdown");
+      if (state.langMenuOpen && btn && dd && !btn.contains(e.target) && !dd.contains(e.target)) {
+        state.langMenuOpen = false;
+        dd.classList.add("hidden");
+      }
+    });
+
+    function showToast(text, variant = "info") {
+      const wrap = document.getElementById("in-app-toast");
+      const inner = document.getElementById("in-app-toast-inner");
+      const styles = {
+        info: "bg-slate-900/95 text-white border-slate-700",
+        success: "bg-emerald-950/95 text-emerald-100 border-emerald-500/50",
+        error: "bg-rose-950/95 text-rose-100 border-rose-500/50"
+      };
+      inner.className = `rounded-2xl px-4 py-3 shadow-xl border backdrop-blur-md text-xs font-semibold flex items-center gap-2.5 ${styles[variant] || styles.info}`;
+      inner.textContent = text;
+      wrap.classList.remove("opacity-0", "-translate-y-3");
+      wrap.classList.add("opacity-100", "translate-y-0");
+
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => {
+        wrap.classList.remove("opacity-100", "translate-y-0");
+        wrap.classList.add("opacity-0", "-translate-y-3");
+      }, 3300);
+    }
+
+    function openModal(innerHtml) {
+      const modal = document.getElementById("in-app-modal");
+      const card = document.getElementById("in-app-modal-card");
+      card.innerHTML = innerHtml;
+      modal.classList.remove("hidden");
+    }
+
+    function closeModal() {
+      document.getElementById("in-app-modal").classList.add("hidden");
+    }
+
+    function switchTab(tab) {
+      state.activeTab = tab;
+      if (tab !== "explore") {
+        state.selectedSpotId = null;
+      }
+      updateStaticChrome();
+      renderApp();
+    }
+
+    function selectSpot(spotId) {
+      state.activeTab = "explore";
+      state.selectedSpotId = spotId;
+      state.verifyingStep = 0;
+      updateStaticChrome();
+      renderApp();
+      const vp = document.getElementById("phone-viewport");
+      if (vp) vp.scrollTop = 0;
+    }
+
+    function updateStaticChrome() {
+      const ui = L();
+      const langMeta = LANGUAGES.find((x) => x.code === state.lang) || LANGUAGES[0];
+
+      document.getElementById("app-title").textContent = ui.appTitle;
+      document.getElementById("app-subtitle").textContent = ui.appSubtitle;
+      document.getElementById("current-lang-flag").textContent = langMeta.flag;
+      document.getElementById("current-lang-native").textContent = langMeta.native;
+
+      document.getElementById("nav-explore-label").textContent = ui.navExplore;
+      document.getElementById("nav-quiz-label").textContent = ui.navQuiz;
+      document.getElementById("nav-badges-label").textContent = ui.navBadges;
+      document.getElementById("nav-badge-count").textContent = state.earnedBadges.size;
+
+      for (const tab of ["explore", "quiz", "badges"]) {
+        const btn = document.getElementById(`nav-${tab}`);
+        if (state.activeTab === tab) {
+          btn.className = "flex flex-col items-center justify-center py-1.5 rounded-2xl bg-emerald-50 text-emerald-700 transition cursor-pointer";
+        } else {
+          btn.className = "flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-400 hover:text-slate-700 transition cursor-pointer";
+        }
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // 10. VIEW RENDERERS (STRICTLY MONOLINGUAL IN SELECTED LANGUAGE)
+    // -----------------------------------------------------------------------
+    function renderApp() {
+      const vp = document.getElementById("phone-viewport");
+      if (state.activeTab === "explore") {
+        if (state.selectedSpotId !== null) {
+          vp.innerHTML = renderSpotDetailView(getSpot(state.selectedSpotId));
+        } else {
+          vp.innerHTML = renderExploreListView();
+        }
+      } else if (state.activeTab === "quiz") {
+        vp.innerHTML = renderQuizView();
+      } else if (state.activeTab === "badges") {
+        vp.innerHTML = renderBadgesView();
+      }
+    }
+
+    function renderExploreListView() {
+      const ui = L();
+      const allSpots = getAllSpots();
+      const arrow = state.lang === "ar" ? "←" : "→";
+
+      const filters = [
+        { key: "ALL", label: ui.filterAll },
+        { key: "HIDDEN", label: ui.filterHidden },
+        { key: "역사문화", label: ui.categories["역사문화"] },
+        { key: "시장거리", label: ui.categories["시장거리"] },
+        { key: "자연공원", label: ui.categories["자연공원"] },
+        { key: "예술트렌드", label: ui.categories["예술트렌드"] }
+      ];
+
+      const filtered = allSpots.filter((s) => {
+        if (state.selectedCategory === "ALL") return true;
+        if (state.selectedCategory === "HIDDEN") return s.is_hidden;
+        return s.category === state.selectedCategory;
+      });
+
+      const quietCount = allSpots.filter((s) => s.crowd_score < 0.3).length;
+      const crowdedCount = allSpots.filter((s) => s.crowd_score >= 0.6).length;
+
+      return `
+        <div class="p-4 space-y-4 animate-view">
+          <!-- Live Seoul Pulse Banner -->
+          <div class="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 text-white p-4 shadow-md">
+            <span class="inline-flex items-center gap-1.5 text-[10px] font-bold tracking-wider text-emerald-300 bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-400/20">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              ${ui.heroBadge}
+            </span>
+            <h2 class="text-base font-extrabold mt-2 leading-snug">${ui.heroTitle}</h2>
+            <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-white/10 text-xs">
+              <div class="bg-white/5 rounded-2xl px-3 py-2 flex items-center justify-between gap-1">
+                <span class="text-slate-300 truncate">${ui.quietSpots}</span>
+                <span class="font-extrabold text-emerald-400 shrink-0">${quietCount} ${ui.placesUnit}</span>
+              </div>
+              <div class="bg-white/5 rounded-2xl px-3 py-2 flex items-center justify-between gap-1">
+                <span class="text-slate-300 truncate">${ui.crowdedSpots}</span>
+                <span class="font-extrabold text-rose-400 shrink-0">${crowdedCount} ${ui.placesUnit}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category Filter Pills -->
+          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+            ${filters
+              .map((f) => {
+                const active = state.selectedCategory === f.key;
+                return `
+                  <button
+                    onclick="setCategoryFilter('${f.key}')"
+                    class="px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition cursor-pointer ${
+                      active
+                        ? "bg-slate-900 text-white shadow-xs"
+                        : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
+                    }"
+                  >
+                    ${f.label}
+                  </button>
+                `;
+              })
+              .join("")}
+          </div>
+
+          <!-- Spots List -->
+          <div class="space-y-2.5 pb-4">
+            ${filtered
+              .map((spot) => {
+                const tier = getCrowdTier(spot.crowd_score);
+                const earned = state.earnedBadges.has(spot.id);
+                return `
+                  <button
+                    onclick="selectSpot(${spot.id})"
+                    class="w-full text-start bg-white hover:bg-slate-50/90 active:scale-[0.99] transition rounded-3xl p-3.5 border border-slate-200/80 shadow-xs flex items-center gap-3.5 cursor-pointer"
+                  >
+                    ${renderSpotIllustration(spot)}
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-1.5 flex-wrap">
+                        ${
+                          spot.is_hidden
+                            ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800">${ui.hiddenBadge}</span>`
+                            : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">${ui.topRankPrefix}${spot.rank_100}</span>`
+                        }
+                        ${earned ? `<span class="text-[10px] font-extrabold text-amber-600">★ ${ui.verifiedTag}</span>` : ""}
+                      </div>
+                      <h3 class="text-[15px] font-extrabold text-slate-900 truncate mt-1">${spot.name}</h3>
+                      <p class="text-[11px] text-slate-500 truncate">${spot.district} · ${spot.categoryLabel}</p>
+                    </div>
+                    <div class="shrink-0 flex flex-col items-end gap-1.5">
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-extrabold border ${tier.pillClass}">
+                        <span class="w-1.5 h-1.5 rounded-full ${tier.dotClass}"></span>
+                        ${tier.label}
+                      </span>
+                      <span class="text-[11px] font-semibold text-slate-400">${ui.detailsBtn} ${arrow}</span>
+                    </div>
+                  </button>
+                `;
+              })
+              .join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function setCategoryFilter(key) {
+      state.selectedCategory = key;
+      renderApp();
+    }
+
+    function renderSpotDetailView(spot) {
+      const ui = L();
+      const backArrow = state.lang === "ar" ? "→" : "←";
+      const fwdArrow = state.lang === "ar" ? "←" : "→";
+      const tier = getCrowdTier(spot.crowd_score);
+      const subway = nearestTransit(spot, "subway");
+      const bus = nearestTransit(spot, "bus");
+      const forecast = getSpotForecast(spot);
+      const alternatives = getAlternatives(spot, 3);
+      const showEscape = tier.code === "crowded" || spot.rank_100 <= 5;
+      const isVerified = state.earnedBadges.has(spot.id);
+
+      const vals = forecast.series;
+      const minV = Math.min(...vals) * 0.85;
+      const maxV = Math.max(...vals) * 1.08;
+      const w = 310;
+      const h = 68;
+      const pts = vals.map((v, idx) => {
+        const x = (idx / (vals.length - 1)) * w;
+        const y = h - ((v - minV) / (maxV - minV || 1)) * (h - 12) - 6;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      });
+      const splitX = ((27 / 34) * w).toFixed(1);
+      const baselinePts = pts.slice(0, 28).join(" ");
+      const recentPts = pts.slice(27).join(" ");
+
+      return `
+        <div class="p-4 space-y-4 pb-8 animate-view">
+          <!-- Back Header -->
+          <div class="flex items-center justify-between gap-2">
+            <button
+              onclick="selectSpot(null)"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+            >
+              ${backArrow} ${ui.backBtn}
+            </button>
+            <span class="text-[11px] font-bold px-2.5 py-1 rounded-full ${spot.is_hidden ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-700"}">
+              ${spot.is_hidden ? `${ui.hiddenRankPrefix}${spot.rank_100}` : `${ui.popularRankPrefix}${spot.rank_100}`}
+            </span>
+          </div>
+
+          <!-- Hero Card -->
+          <div class="bg-white rounded-3xl p-4 border border-slate-200/80 shadow-xs">
+            <div class="flex items-start gap-3.5">
+              ${renderSpotIllustration(spot, "w-16 h-16")}
+              <div class="flex-1 min-w-0">
+                <div class="text-[11px] font-bold text-indigo-600">${spot.categoryLabel} · ${spot.district}</div>
+                <h2 class="text-lg font-extrabold text-slate-900 leading-tight mt-0.5">${spot.name}</h2>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed mt-3 pt-3 border-t border-slate-100">
+              ${spot.desc}
+            </p>
+          </div>
+
+          <!-- F4: ESCAPE THE CROWD -->
+          ${
+            showEscape && alternatives.length > 0
+              ? `
+            <section class="rounded-3xl bg-gradient-to-br from-emerald-50 via-teal-50/90 to-white p-4 border-2 border-emerald-400/70 shadow-sm space-y-3">
+              <div>
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-extrabold tracking-wider">
+                  ${ui.f4Badge}
+                </span>
+                <h3 class="text-sm font-extrabold text-slate-900 mt-1.5">${ui.f4Title}</h3>
+                <p class="text-[11px] text-slate-600 mt-0.5">${ui.f4Subtitle}</p>
+              </div>
+
+              <div class="space-y-2.5">
+                ${alternatives
+                  .map((alt) => {
+                    const aSpot = alt.spot;
+                    const aTier = getCrowdTier(aSpot.crowd_score);
+                    return `
+                      <div class="bg-white rounded-2xl p-3 border border-emerald-200/80 shadow-2xs space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                          <button
+                            onclick="selectSpot(${aSpot.id})"
+                            class="flex items-center gap-2.5 text-start flex-1 min-w-0 cursor-pointer group"
+                          >
+                            ${renderSpotIllustration(aSpot, "w-11 h-11")}
+                            <div class="min-w-0">
+                              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-700 truncate">
+                                ${aSpot.name}
+                              </div>
+                              <div class="text-[11px] text-slate-500">
+                                ${alt.km} km · #${aSpot.rank_100}
+                              </div>
+                            </div>
+                          </button>
+                          <span class="shrink-0 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border ${aTier.pillClass}">
+                            <span class="w-1.5 h-1.5 rounded-full ${aTier.dotClass}"></span>
+                            ${aTier.label}
+                          </span>
+                        </div>
+                        <div class="flex items-center justify-between pt-1.5 border-t border-slate-100">
+                          <button
+                            onclick="selectSpot(${aSpot.id})"
+                            class="text-[11px] font-bold text-emerald-700 hover:underline cursor-pointer"
+                          >
+                            ${ui.viewSpotDetails} ${fwdArrow}
+                          </button>
+                          <a
+                            href="${SPOT100_URL}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900 hover:bg-slate-700 text-white text-[10px] font-bold transition"
+                          >
+                            ${ui.spot100Btn} ↗
+                          </a>
+                        </div>
+                      </div>
+                    `;
+                  })
+                  .join("")}
+              </div>
+            </section>
+          `
+              : ""
+          }
+
+          <!-- F2: AREA CONGESTION & TRANSIT -->
+          <section class="bg-white rounded-3xl p-4 border border-slate-200/80 shadow-xs space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[11px] font-extrabold text-slate-500">${ui.f2Title}</span>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold border ${tier.pillClass} shrink-0">
+                <span class="w-2 h-2 rounded-full ${tier.dotClass}"></span>
+                ${tier.label}
+              </span>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-[11px] font-semibold text-slate-500 mb-1">
+                <span>${ui.crowd.quiet}</span>
+                <span>${ui.crowd.normal}</span>
+                <span>${ui.crowd.crowded}</span>
+              </div>
+              <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                <div class="h-full ${tier.barClass} rounded-full transition-all duration-500" style="width: ${tier.pct}%"></div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-1">
+              <div class="rounded-2xl bg-slate-50 p-3 border border-slate-100">
+                <div class="text-[10px] font-bold text-slate-400">${ui.nearestSubway}</div>
+                ${
+                  subway
+                    ? `<div class="text-xs font-extrabold text-slate-900 mt-1">${subway.name}</div>
+                       <div class="text-[11px] font-semibold text-indigo-600 mt-0.5">${subway.lineLabel} · ${subway.distance_m}m</div>`
+                    : `<div class="text-xs font-semibold text-slate-400 mt-1">${ui.noneWithin15km}</div>`
+                }
+              </div>
+
+              <div class="rounded-2xl bg-slate-50 p-3 border border-slate-100">
+                <div class="text-[10px] font-bold text-slate-400">${ui.nearestBus}</div>
+                ${
+                  bus
+                    ? `<div class="text-xs font-extrabold text-slate-900 mt-1">${bus.name}</div>
+                       <div class="text-[11px] font-semibold text-emerald-600 mt-0.5">${bus.distance_m}m</div>`
+                    : `<div class="text-xs font-semibold text-slate-400 mt-1">${ui.noneWithin15km}</div>`
+                }
+              </div>
+            </div>
+
+            <p class="text-[10px] text-slate-400 leading-relaxed bg-slate-50 rounded-xl px-3 py-2">
+              ⓘ ${ui.f2Note}
+            </p>
+          </section>
+
+          <!-- F3: VISITOR FORECAST -->
+          <section class="bg-white rounded-3xl p-4 border border-slate-200/80 shadow-xs space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[11px] font-extrabold text-slate-500">${ui.f3Title}</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 shrink-0">
+                ${ui.f3Confidence}
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5">
+              <div class="rounded-2xl p-3 border ${forecast.today.pillClass}">
+                <div class="text-[10px] font-bold opacity-80">${ui.todayForecast}</div>
+                <div class="text-sm font-extrabold mt-0.5">${forecast.today.label}</div>
+                <div class="text-[11px] font-semibold mt-0.5 opacity-85">${forecast.r7.toFixed(2)}x ${ui.vs28d}</div>
+              </div>
+              <div class="rounded-2xl p-3 border ${forecast.tomorrow.pillClass}">
+                <div class="text-[10px] font-bold opacity-80">${ui.tomorrowForecast}</div>
+                <div class="text-sm font-extrabold mt-0.5">${forecast.tomorrow.label}</div>
+                <div class="text-[11px] font-semibold mt-0.5 opacity-85">${forecast.r3.toFixed(2)}x ${ui.vs28d}</div>
+              </div>
+            </div>
+
+            <div class="rounded-2xl bg-slate-50 p-3 border border-slate-100" dir="ltr">
+              <div class="flex items-center justify-between text-[10px] font-bold text-slate-500 mb-1.5">
+                <span>${ui.baselineLabel}</span>
+                <span style="color: ${forecast.today.accentHex}">${ui.recentLabel}</span>
+              </div>
+              <svg viewBox="0 0 ${w} ${h}" class="w-full h-16 overflow-visible">
+                <line x1="${splitX}" y1="0" x2="${splitX}" y2="${h}" stroke="#cbd5e1" stroke-dasharray="3 3" stroke-width="1.2" />
+                <polyline fill="none" stroke="#94a3b8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" points="${baselinePts}" />
+                <polyline fill="none" stroke="${forecast.today.accentHex}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" points="${recentPts}" />
+              </svg>
+            </div>
+
+            <p class="text-[10px] text-slate-400 leading-relaxed">
+              ⓘ ${ui.f3Note}
+            </p>
+          </section>
+
+          <!-- F5: ON-SITE PHOTO VERIFICATION -->
+          <section id="f5-verify-section" class="rounded-3xl bg-slate-900 text-white p-4 shadow-md space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[11px] font-extrabold text-emerald-400">${ui.f5Title}</span>
+              ${
+                isVerified
+                  ? `<span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[11px] font-extrabold">✓ ${ui.f5BadgeEarned}</span>`
+                  : `<span class="text-[10px] text-slate-400">${ui.f5GpsCheck}</span>`
+              }
+            </div>
+
+            <div>
+              <h3 class="text-sm font-extrabold">
+                ${isVerified ? ui.f5HeadingEarned : ui.f5HeadingDefault}
+              </h3>
+              <p class="text-xs text-slate-300 mt-1 leading-relaxed">${ui.f5Desc}</p>
+            </div>
+
+            ${
+              state.verifyingStep > 0
+                ? `
+              <div class="rounded-2xl bg-white/10 p-3 space-y-2 text-xs">
+                <div class="flex items-center justify-between ${state.verifyingStep >= 1 ? "text-emerald-300 font-bold" : "text-slate-400"}">
+                  <span>${ui.step1Gps}</span>
+                  <span>${state.verifyingStep >= 1 ? "✓" : "..."}</span>
+                </div>
+                <div class="flex items-center justify-between ${state.verifyingStep >= 2 ? "text-emerald-300 font-bold" : "text-slate-400"}">
+                  <span>${ui.step2Phash}</span>
+                  <span>${state.verifyingStep >= 2 ? "✓" : "..."}</span>
+                </div>
+                <div class="flex items-center justify-between ${state.verifyingStep >= 3 ? "text-emerald-300 font-bold" : "text-slate-400"}">
+                  <span>${ui.step3Vision}</span>
+                  <span>${state.verifyingStep >= 3 ? "✓" : "..."}</span>
+                </div>
+              </div>
+            `
+                : ""
+            }
+
+            <div class="grid grid-cols-1 gap-2 pt-1">
+              <button
+                onclick="triggerPhotoVerification(${spot.id})"
+                class="w-full py-3 px-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 active:scale-[0.99] text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                  <circle cx="12" cy="13" r="3"/>
+                </svg>
+                <span>${isVerified ? ui.btnReverify : ui.btnSimulateCamera}</span>
+              </button>
+
+              <label class="w-full py-2.5 px-4 rounded-2xl bg-white/10 hover:bg-white/15 text-slate-200 font-bold text-[11px] text-center transition cursor-pointer">
+                ${ui.btnUploadFile}
+                <input type="file" accept="image/*" class="hidden" onchange="triggerPhotoVerification(${spot.id})" />
+              </label>
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderQuizView() {
+      const ui = L();
+      const answeredCount = Object.keys(state.quizAnswers).length;
+      const allAnswered = answeredCount === QUESTIONS_DATA.length;
+      const fwdArrow = state.lang === "ar" ? "←" : "→";
+
+      return `
+        <div class="p-4 space-y-4 pb-8 animate-view">
+          <div class="rounded-3xl bg-gradient-to-br from-indigo-600 to-violet-700 text-white p-4 shadow-md">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[10px] font-extrabold tracking-wider bg-white/15 px-2.5 py-0.5 rounded-full">
+                ${ui.quizBadge}
+              </span>
+              <button
+                onclick="quickAutoFillQuiz()"
+                class="px-2.5 py-1 rounded-full bg-white text-indigo-700 hover:bg-indigo-50 text-[10px] font-extrabold shadow-xs transition cursor-pointer"
+              >
+                ⚡ ${ui.quizAutoFill}
+              </button>
+            </div>
+            <h2 class="text-base font-extrabold mt-2">${ui.quizTitle}</h2>
+            <div class="mt-3 flex items-center gap-2">
+              <div class="flex-1 h-2 bg-black/25 rounded-full overflow-hidden">
+                <div class="h-full bg-emerald-300 rounded-full transition-all duration-300" style="width: ${(answeredCount / QUESTIONS_DATA.length) * 100}%"></div>
+              </div>
+              <span class="text-[11px] font-extrabold">${answeredCount}/${QUESTIONS_DATA.length}</span>
+            </div>
+          </div>
+
+          ${state.quizResult ? renderQuizResultCard(state.quizResult) : ""}
+
+          <div class="space-y-3">
+            ${QUESTIONS_DATA.map((q) => {
+              const selected = state.quizAnswers[q.id];
+              const qLoc = q.l10n[state.lang] || q.l10n.en;
+              const axisLabels = {
+                lively: `${ui.axisQuiet} / ${ui.axisLively}`,
+                city: `${ui.axisNature} / ${ui.axisCity}`,
+                trend: `${ui.axisHeritage} / ${ui.axisTrendy}`
+              };
+              return `
+                <div class="bg-white rounded-3xl p-4 border border-slate-200/80 shadow-2xs space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-extrabold text-indigo-600">Q${q.id} · ${axisLabels[q.axis]}</span>
+                    ${selected !== undefined ? `<span class="text-[10px] font-bold text-emerald-600">✓</span>` : ""}
+                  </div>
+                  <h3 class="text-xs font-extrabold text-slate-900">${qLoc[0]}</h3>
+                  <div class="grid grid-cols-1 gap-2">
+                    ${["A", "B"]
+                      .map((choiceKey, idx) => {
+                        const score = q.scores[choiceKey];
+                        const isPicked = selected === score;
+                        return `
+                          <button
+                            onclick="answerQuiz(${q.id}, ${score})"
+                            class="w-full text-start px-3.5 py-2.5 rounded-2xl border text-xs font-semibold transition cursor-pointer flex items-center justify-between gap-2 ${
+                              isPicked
+                                ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
+                                : "bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200"
+                            }"
+                          >
+                            <span>${qLoc[idx + 1]}</span>
+                            <span class="text-[10px] font-extrabold opacity-80 shrink-0">${choiceKey}</span>
+                          </button>
+                        `;
+                      })
+                      .join("")}
+                  </div>
+                </div>
+              `;
+            }).join("")}
+          </div>
+
+          <button
+            onclick="submitQuiz()"
+            class="w-full py-3.5 rounded-2xl font-extrabold text-xs shadow-md transition cursor-pointer ${
+              allAnswered ? "bg-slate-900 hover:bg-slate-800 text-white" : "bg-slate-200 text-slate-500"
+            }"
+          >
+            ${
+              allAnswered
+                ? `${ui.submitQuizBtn} ${fwdArrow}`
+                : `${ui.answerAllPrompt} (${answeredCount}/${QUESTIONS_DATA.length})`
+            }
+          </button>
+        </div>
+      `;
+    }
+
+    function renderQuizResultCard(res) {
+      const ui = L();
+      const typeLoc = TYPES_L10N[res.code][state.lang] || TYPES_L10N[res.code].en;
+      const pct = (val) => Math.round(((val + 1) / 2) * 100);
+
+      // Re-compute localized top 5 dynamically when language switches
+      const fresh = computePersonalityResult(state.quizAnswers);
+
+      return `
+        <div id="quiz-result-card" class="rounded-3xl bg-white p-4 border-2 border-indigo-500 shadow-md space-y-4 animate-pop">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-800 text-[11px] font-extrabold font-mono">
+                ${ui.typePrefix} ${res.code}
+              </span>
+              <h3 class="text-base font-extrabold text-slate-900 mt-1.5">${typeLoc[0]}</h3>
+            </div>
+            <button
+              onclick="resetQuizOnly()"
+              class="text-[11px] font-bold text-slate-400 hover:text-slate-700 cursor-pointer shrink-0"
+            >
+              ${ui.retakeBtn}
+            </button>
+          </div>
+
+          <p class="text-xs text-slate-600 leading-relaxed">${typeLoc[1]}</p>
+
+          <div class="space-y-2.5 bg-slate-50 rounded-2xl p-3 border border-slate-100" dir="ltr">
+            ${[
+              { left: ui.axisQuiet, right: ui.axisLively, val: res.vec.lively },
+              { left: ui.axisNature, right: ui.axisCity, val: res.vec.city },
+              { left: ui.axisHeritage, right: ui.axisTrendy, val: res.vec.trend }
+            ]
+              .map(
+                (ax) => `
+              <div>
+                <div class="flex justify-between text-[10px] font-bold text-slate-600 mb-1">
+                  <span>${ax.left}</span>
+                  <span class="font-mono text-indigo-600">${ax.val >= 0 ? "+" : ""}${ax.val.toFixed(2)}</span>
+                  <span>${ax.right}</span>
+                </div>
+                <div class="w-full h-2 bg-slate-200 rounded-full relative">
+                  <div class="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-indigo-600 border-2 border-white shadow-xs transition-all" style="left: calc(${pct(ax.val)}% - 7px)"></div>
+                </div>
+              </div>
+            `
+              )
+              .join("")}
+          </div>
+
+          <div>
+            <h4 class="text-xs font-extrabold text-slate-900 mb-2">${ui.top5Title}</h4>
+            <div class="space-y-2">
+              ${fresh.recommendations
+                .map((item, idx) => {
+                  const s = item.spot;
+                  const tier = getCrowdTier(s.crowd_score);
+                  return `
+                    <button
+                      onclick="selectSpot(${s.id})"
+                      class="w-full text-start p-2.5 rounded-2xl bg-slate-50 hover:bg-indigo-50/70 border border-slate-200/80 flex items-center justify-between gap-2 transition cursor-pointer"
+                    >
+                      <div class="flex items-center gap-2.5 min-w-0">
+                        <span class="w-5 h-5 rounded-full bg-slate-900 text-white text-[10px] font-extrabold flex items-center justify-center shrink-0">${idx + 1}</span>
+                        <div class="min-w-0">
+                          <div class="text-xs font-extrabold text-slate-900 truncate">${s.name}</div>
+                          <div class="text-[10px] text-slate-500">${item.similarityPct}% ${ui.vibeMatchPct} · ${s.is_hidden ? ui.hiddenBadge : `#${s.rank_100}`}</div>
+                        </div>
+                      </div>
+                      <span class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${tier.pillClass}">
+                        ${tier.label}
+                      </span>
+                    </button>
+                  `;
+                })
+                .join("")}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function answerQuiz(qId, score) {
+      state.quizAnswers[qId] = score;
+      renderApp();
+    }
+
+    function submitQuiz() {
+      if (Object.keys(state.quizAnswers).length < QUESTIONS_DATA.length) {
+        showToast(`⚠️ ${L().toastQuizIncomplete}`, "error");
+        return;
+      }
+      state.quizResult = computePersonalityResult(state.quizAnswers);
+      renderApp();
+      const vp = document.getElementById("phone-viewport");
+      if (vp) vp.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function quickAutoFillQuiz() {
+      state.quizAnswers = {
+        1: -1, 2: -1, 3: -1,
+        4: 1, 5: -1, 6: 1,
+        7: 1, 8: 1
+      };
+      state.quizResult = computePersonalityResult(state.quizAnswers);
+      renderApp();
+      showToast(`✨ ${L().toastAutoFilled}`, "success");
+    }
+
+    function resetQuizOnly() {
+      state.quizAnswers = {};
+      state.quizResult = null;
+      renderApp();
+    }
+
+    function renderBadgesView() {
+      const ui = L();
+      const allSpots = getAllSpots();
+      const hiddenEarnedCount = HIDDEN_COLLECTION_IDS.filter((id) => state.earnedBadges.has(id)).length;
+      const isComplete = hiddenEarnedCount === HIDDEN_COLLECTION_IDS.length;
+
+      return `
+        <div class="p-4 space-y-4 pb-8 animate-view">
+          <!-- F6 Special Collection Reward Card -->
+          <div class="rounded-3xl p-4 border shadow-md relative overflow-hidden ${
+            isComplete
+              ? "bg-gradient-to-br from-amber-500 via-yellow-500 to-amber-600 text-slate-950 border-amber-300"
+              : "bg-gradient-to-br from-slate-900 to-slate-800 text-white border-slate-700"
+          }">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wider ${
+                  isComplete ? "bg-slate-950/15 text-slate-950" : "bg-emerald-500/20 text-emerald-300"
+                }">
+                  ${ui.f6Badge}
+                </span>
+                <h2 class="text-base font-extrabold mt-1.5">${ui.collection.name}</h2>
+                <p class="text-xs mt-0.5 ${isComplete ? "text-slate-900 font-semibold" : "text-slate-300"}">
+                  ${ui.f6RewardPrefix} ${ui.collection.rewardTitle}
+                </p>
+              </div>
+              <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-inner shrink-0 ${
+                isComplete ? "bg-white/40" : "bg-white/10"
+              }">
+                ${isComplete ? "🏆" : "🔒"}
+              </div>
+            </div>
+
+            <div class="mt-3.5">
+              <div class="flex justify-between text-xs font-extrabold mb-1">
+                <span>${isComplete ? ui.f6Complete : ui.f6Progress}</span>
+                <span>${hiddenEarnedCount} / ${HIDDEN_COLLECTION_IDS.length}</span>
+              </div>
+              <div class="w-full h-2.5 rounded-full overflow-hidden ${isComplete ? "bg-slate-950/20" : "bg-white/15"}">
+                <div class="h-full rounded-full transition-all duration-500 ${isComplete ? "bg-slate-950" : "bg-emerald-400"}" style="width: ${(hiddenEarnedCount / HIDDEN_COLLECTION_IDS.length) * 100}%"></div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-1.5 mt-3 pt-3 border-t ${isComplete ? "border-slate-950/15" : "border-white/10"}">
+              ${HIDDEN_COLLECTION_IDS.map((id) => {
+                const s = getSpot(id);
+                const got = state.earnedBadges.has(id);
+                return `
+                  <button
+                    onclick="selectSpot(${s.id})"
+                    class="px-2.5 py-1.5 rounded-xl text-[10px] font-bold truncate text-start flex items-center gap-1.5 transition cursor-pointer ${
+                      got
+                        ? isComplete
+                          ? "bg-slate-950/15 text-slate-950"
+                          : "bg-emerald-500/25 text-emerald-200 border border-emerald-400/30"
+                        : "bg-white/5 text-slate-400 hover:bg-white/10"
+                    }"
+                  >
+                    <span class="shrink-0">${got ? "✓" : "○"}</span>
+                    <span class="truncate">${s.name}</span>
+                  </button>
+                `;
+              }).join("")}
+            </div>
+          </div>
+
+          <!-- F5 Stamp Passport -->
+          <div>
+            <div class="flex items-center justify-between mb-2.5">
+              <h3 class="text-xs font-extrabold text-slate-600">
+                ${ui.passportTitle} (${state.earnedBadges.size}/${allSpots.length})
+              </h3>
+              <span class="text-[10px] font-semibold text-slate-400">${ui.tapToVerify}</span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2.5">
+              ${allSpots
+                .map((spot) => {
+                  const earned = state.earnedBadges.has(spot.id);
+                  return `
+                    <button
+                      onclick="selectSpot(${spot.id})"
+                      class="rounded-2xl p-2.5 border text-center flex flex-col items-center transition cursor-pointer ${
+                        earned
+                          ? "bg-white border-emerald-300 shadow-xs"
+                          : "bg-slate-100/80 border-slate-200/80 opacity-65 hover:opacity-100"
+                      }"
+                    >
+                      <div class="${earned ? "" : "grayscale"}">
+                        ${renderSpotIllustration(spot, "w-12 h-12")}
+                      </div>
+                      <div class="text-[11px] font-extrabold text-slate-900 truncate w-full mt-1.5">${spot.name}</div>
+                      <div class="text-[9px] font-bold mt-0.5 ${earned ? "text-emerald-600" : "text-slate-400"}">
+                        ${earned ? `✓ ${ui.unlocked}` : ui.locked}
+                      </div>
+                    </button>
+                  `;
+                })
+                .join("")}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // -----------------------------------------------------------------------
+    // 11. F5 PHOTO VERIFICATION & F6 COLLECTION UNLOCK
+    // -----------------------------------------------------------------------
+    function triggerPhotoVerification(spotId) {
+      const spot = getSpot(spotId);
+      if (!spot) return;
+
+      state.verifyingStep = 1;
+      renderApp();
+
+      setTimeout(() => {
+        state.verifyingStep = 2;
+        renderApp();
+      }, 400);
+
+      setTimeout(() => {
+        state.verifyingStep = 3;
+        renderApp();
+      }, 800);
+
+      setTimeout(() => {
+        state.verifyingStep = 0;
+        const alreadyHad = state.earnedBadges.has(spotId);
+        state.earnedBadges.add(spotId);
+        updateStaticChrome();
+        renderApp();
+
+        const hiddenEarnedCount = HIDDEN_COLLECTION_IDS.filter((id) =>
+          state.earnedBadges.has(id)
+        ).length;
+
+        if (hiddenEarnedCount === HIDDEN_COLLECTION_IDS.length && !state.collectionUnlocked) {
+          state.collectionUnlocked = true;
+          openCollectionCelebrationModal();
+        } else {
+          const ui = L();
+          showToast(
+            alreadyHad
+              ? `🏅 ${ui.toastReverified} (${spot.name})`
+              : `🏅 ${spot.name} — ${ui.toastBadgeEarned} ${hiddenEarnedCount}/${HIDDEN_COLLECTION_IDS.length}`,
+            "success"
+          );
+        }
+      }, 1250);
+    }
+
+    function openCollectionCelebrationModal() {
+      const ui = L();
+      const fwdArrow = state.lang === "ar" ? "←" : "→";
+      openModal(`
+        <div class="space-y-4">
+          <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-amber-400 to-yellow-600 flex items-center justify-center text-4xl shadow-lg shadow-amber-500/30">
+            🏆
+          </div>
+          <div>
+            <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold tracking-wider">
+              ${ui.modalCollectionBadge}
+            </span>
+            <h3 class="text-xl font-extrabold text-slate-900 mt-2">${ui.collection.rewardTitle}</h3>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed bg-slate-50 rounded-2xl p-3 border border-slate-100">
+            ${ui.modalCollectionDesc}
+          </p>
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <button
+              onclick="closeModal()"
+              class="py-2.5 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer"
+            >
+              ${ui.closeBtn}
+            </button>
+            <button
+              onclick="closeModal(); switchTab('badges');"
+              class="py-2.5 px-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs cursor-pointer"
+            >
+              ${ui.viewTrophyBtn} ${fwdArrow}
+            </button>
+          </div>
+        </div>
+      `);
+    }
+
+    // -----------------------------------------------------------------------
+    // 12. PRESENTER CONTROLS & MOBILE SHEET
+    // -----------------------------------------------------------------------
+    function renderPresenterLanguageGrid() {
+      const grid = document.getElementById("presenter-lang-grid");
+      if (!grid) return;
+      grid.innerHTML = LANGUAGES.map(
+        (l) => `
+        <button
+          onclick="setLanguage('${l.code}')"
+          class="px-2.5 py-1.5 rounded-xl text-[11px] font-bold flex items-center gap-1.5 border transition cursor-pointer ${
+            state.lang === l.code
+              ? "bg-emerald-500 text-slate-950 border-emerald-400 shadow-xs"
+              : "bg-slate-800/80 hover:bg-slate-800 text-slate-200 border-slate-700"
+          }"
+        >
+          <span>${l.flag}</span>
+          <span class="truncate">${l.native}</span>
+        </button>
+      `
+      ).join("");
+    }
+
+    function runDemoScene1() {
+      closeModal();
+      state.quizAnswers = {};
+      state.quizResult = null;
+      state.selectedSpotId = null;
+      state.activeTab = "quiz";
+      updateStaticChrome();
+      renderApp();
+      showToast(`🎬 ${L().toastScene1}`, "info");
+    }
+
+    function runDemoScene2() {
+      closeModal();
+      state.activeTab = "explore";
+      state.selectedSpotId = 1;
+      state.verifyingStep = 0;
+      updateStaticChrome();
+      renderApp();
+      const vp = document.getElementById("phone-viewport");
+      if (vp) vp.scrollTop = 0;
+      showToast(`🔥 ${L().toastScene2}`, "info");
+    }
+
+    function runDemoScene3() {
+      closeModal();
+      state.earnedBadges = new Set([11, 12, 13, 14, 15]);
+      state.collectionUnlocked = false;
+      state.activeTab = "explore";
+      state.selectedSpotId = 10;
+      state.verifyingStep = 0;
+      updateStaticChrome();
+      renderApp();
+      setTimeout(() => {
+        const vp = document.getElementById("phone-viewport");
+        const f5 = document.getElementById("f5-verify-section");
+        if (vp && f5) {
+          vp.scrollTo({ top: f5.offsetTop - 20, behavior: "smooth" });
+        }
+      }, 80);
+      showToast(`🎯 ${L().toastScene3}`, "success");
+    }
+
+    function simulateAntiCheatReject() {
+      const ui = L();
+      openModal(`
+        <div class="space-y-4">
+          <div class="w-16 h-16 mx-auto rounded-3xl bg-rose-100 text-rose-600 flex items-center justify-center text-3xl">
+            🛡️
+          </div>
+          <div>
+            <span class="px-3 py-1 rounded-full bg-rose-100 text-rose-700 text-[10px] font-extrabold tracking-wider">
+              ${ui.modalAntiCheatBadge}
+            </span>
+            <h3 class="text-lg font-extrabold text-slate-900 mt-2">${ui.modalAntiCheatTitle}</h3>
+          </div>
+          <div class="text-start bg-slate-50 rounded-2xl p-3 border border-slate-200 space-y-1.5 text-xs">
+            <div class="flex justify-between text-emerald-700 font-bold">
+              <span>${ui.antiCheatStep1}</span>
+              <span>${ui.antiCheatPass} ✓</span>
+            </div>
+            <div class="flex justify-between text-emerald-700 font-bold">
+              <span>${ui.antiCheatStep2}</span>
+              <span>${ui.antiCheatPass} ✓</span>
+            </div>
+            <div class="flex justify-between text-rose-600 font-extrabold">
+              <span>${ui.antiCheatStep3}</span>
+              <span>${ui.antiCheatFail} ✕</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">${ui.antiCheatDesc}</p>
+          <button
+            onclick="closeModal()"
+            class="w-full py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs cursor-pointer"
+          >
+            ${ui.understoodBtn}
+          </button>
+        </div>
+      `);
+    }
+
+    function resetAllDemoData() {
+      closeModal();
+      state.activeTab = "explore";
+      state.selectedCategory = "ALL";
+      state.selectedSpotId = null;
+      state.quizAnswers = {};
+      state.quizResult = null;
+      state.earnedBadges = new Set();
+      state.collectionUnlocked = false;
+      state.verifyingStep = 0;
+      updateStaticChrome();
+      renderApp();
+      showToast(`🔄 ${L().toastReset}`, "info");
+    }
+
+    function openMobilePresenter() {
+      document.getElementById("presenter-sidebar").classList.add("mobile-open");
+    }
+
+    function closeMobilePresenter() {
+      document.getElementById("presenter-sidebar").classList.remove("mobile-open");
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      renderPresenterLanguageGrid();
+      updateStaticChrome();
+      renderApp();
+    });
+  </script>
+</body>
+</html>
